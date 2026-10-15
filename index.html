@@ -581,13 +581,13 @@ async function gcall(action,extra){
 const gRun=async f=>{try{await f()}catch(e){alert('Google sync: '+e.message)}};
 const cfgOk=()=>!!(sync.url&&sync.key);
 const ago=t=>{const s=Math.max(0,Math.round((Date.now()-t)/1000));return s<60?'just now':s<3600?Math.round(s/60)+' min ago':s<86400?Math.round(s/3600)+' h ago':new Date(t).toLocaleDateString()};
-const gLine=()=>{const t=(sync.t||{})[meta.cur],d=(sync.d||{})[meta.cur];return(t?'Session '+meta.cur+' last synced '+new Date(t).toLocaleString():'Session '+meta.cur+' not synced yet')+(d?' · changes not sent yet':'')};
+const gLine=()=>{const t=(sync.t||{})[meta.cur],d=(sync.d||{})[meta.cur];return(t?'Session '+meta.cur+' confirmed in sync with Google at '+new Date(t).toLocaleTimeString()+' ('+ago(t)+')':'Session '+meta.cur+' not synced yet')+(d?' · changes not sent yet':'')};
 function refreshSyncUI(){const b=$('#syncb');if(!b)return;const t=(sync.t||{})[meta.cur],d=(sync.d||{})[meta.cur];let tx,col='',ti='';
  if(!cfgOk()){tx='☁ Set up sync';ti='Connect to your Google sheet'}
  else if(_busy){tx='⟳ Syncing…'}
  else if(_err){tx='⚠ Sync problem';col='var(--bad)';ti=_err}
  else if(d){tx='● Not sent yet';col='var(--warn)';ti='Changes will be sent to Google shortly. Click to sync now.'}
- else if(t){tx='✓ Synced '+ago(t);col='var(--ok)';ti='Click to check Google for changes'}
+ else if(t){tx='✓ Up to date · '+ago(t);col='var(--ok)';ti='Last checked with Google '+ago(t)+'. It re-checks automatically every 30 seconds. Click to check now.'}
  else{tx='☁ Sync now'}
  b.textContent=tx;b.style.color=col;b.title=ti||''}
 async function syncNow(silent){
@@ -600,7 +600,7 @@ async function syncCore(silent){
  const name=meta.cur,L=await gcall('list'),r=(L.sessions||[]).find(x=>x.name===name);
  const base=(sync.v||{})[name],dirty=!!(sync.d||{})[name],has=st.students.length>0;
  if(!r){if(has){await doPush(name,0,true);if(!silent)toast('Sent '+name+' to Google')}else if(!silent)toast('Nothing to sync yet');return}
- if(r.version===base){if(dirty){if(await doPush(name,base,false)&&!silent)toast('Sent changes to Google')}else if(!silent)toast('Already up to date ✓');return}
+ if(r.version===base){if(!dirty){sync.t=sync.t||{};sync.t[name]=Date.now();saveSync()}if(dirty){if(await doPush(name,base,false)&&!silent)toast('Sent changes to Google')}else if(!silent)toast('Already up to date ✓');return}
  if(!has||(!dirty&&base)){await doPull(name,silent?'Updated from Google ('+name+')':'Updated from Google');return}
  await askConflict(name,r)}
 async function doPush(name,base,force){const stamp=(sync.d||{})[name];
@@ -666,8 +666,8 @@ async function gGet(name){try{
  loadSess();refreshSyncUI();toast('Downloaded '+name+' from Google')}
  catch(e){alert('Google sync: '+e.message)}}
 /* automatic triggers */
-setInterval(()=>{if(sync.auto&&cfgOk()&&!document.hidden&&Date.now()-_lastCheck>55000)syncNow(true)},30000);
-setInterval(refreshSyncUI,30000);
+setInterval(()=>{if(sync.auto&&cfgOk()&&!document.hidden&&Date.now()-_lastCheck>25000)syncNow(true)},15000);
+setInterval(refreshSyncUI,10000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&sync.auto&&cfgOk()&&Date.now()-_lastCheck>15000)syncNow(true)});
 window.addEventListener('online',()=>{if(sync.auto&&cfgOk())syncNow(true)});
 setTimeout(()=>{refreshSyncUI();if(sync.auto&&cfgOk())syncNow(true)},1200);
