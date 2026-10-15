@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#7a2e4d"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<title>MAS Choir Tracker</title>
+<style>
+:root{--bg:#f6f4ef;--card:#fff;--ink:#1d2433;--mut:#6b7280;--line:#e5e1d8;--acc:#7a2e4d;--accs:#f3e3ea;--ok:#2f7d4f;--oks:#e1f2e8;--bad:#b3392f;--bads:#f8e2df;--warn:#b7791f;--warns:#fbefd5}
+@media(prefers-color-scheme:dark){:root{--bg:#15171c;--card:#1f232b;--ink:#e8e9ee;--mut:#9aa0ad;--line:#323744;--acc:#e08bb0;--accs:#3a2530;--ok:#6cc790;--oks:#1e3327;--bad:#f08a80;--bads:#3b2321;--warn:#e5b455;--warns:#3a2f17}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{padding:20px 16px 0;max-width:1560px;margin:auto}h1{margin:0;font-size:30px;letter-spacing:-.01em}
+.sub{color:var(--mut);font-size:15px}
+nav{display:flex;gap:4px;max-width:1560px;margin:14px auto 0;padding:0 16px;overflow-x:auto;border-bottom:1px solid var(--line)}
+nav button{background:none;border:0;border-bottom:3px solid transparent;padding:12px 18px;font:inherit;color:var(--mut);cursor:pointer;white-space:nowrap}
+nav button.on{color:var(--acc);border-color:var(--acc);font-weight:600}
+main{max-width:1560px;margin:auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}.kpi b{display:block;font-size:34px;line-height:1.1}.kpi span{color:var(--mut);font-size:14px}
+h2{font-size:20px;margin:0 0 10px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+input,select,button.b{font:inherit;padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+button.b{cursor:pointer}button.pri{background:var(--acc);color:var(--card);border-color:var(--acc)}
+button.b:hover{filter:brightness(.95)}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px 10px;border-bottom:1px solid var(--line);font-size:17px;vertical-align:middle}
+th{font-size:13px;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;white-space:nowrap}
+.tw{overflow-x:auto}
+.pill{display:inline-block;padding:3px 12px;border-radius:99px;font-size:14px;background:var(--accs);color:var(--acc)}
+.pill.ok{background:var(--oks);color:var(--ok)}.pill.bad{background:var(--bads);color:var(--bad)}.pill.warn{background:var(--warns);color:var(--warn)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:var(--card);color:var(--mut);padding:10px 20px;font:inherit;cursor:pointer}
+.seg button.p.on{background:var(--oks);color:var(--ok);font-weight:600}.seg button.a.on{background:var(--bads);color:var(--bad);font-weight:600}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;min-width:70px}.bar i{display:block;height:100%;background:var(--ok)}
+.two{display:grid;gap:16px;grid-template-columns:1fr 1fr}@media(max-width:760px){.two{grid-template-columns:1fr}}
+dialog{font-size:17px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);max-width:560px;width:94%}
+dialog.wide{max-width:1040px}.idw{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}.idside{position:sticky;top:0}.idbox{border:1px solid var(--line);border-radius:10px;overflow:auto;max-height:72vh;background:var(--bg)}.idimg{position:relative;width:100%;cursor:zoom-in}.idimg.z{width:220%;cursor:zoom-out}.idimg img{width:100%;display:block}.idov{position:absolute;box-sizing:border-box;border:2px dashed;border-radius:4px;cursor:text}.idov.on{border-style:solid;border-width:3px;background:rgba(255,200,0,.28)}@media(max-width:760px){.idw{grid-template-columns:1fr}.idside{z-index:2;background:var(--card);padding:4px 0 8px}.idbox{max-height:32vh}}
+dialog label{display:block;font-size:14px;color:var(--mut);margin-top:10px}dialog input,dialog select{width:100%}
+.av{width:72px;height:72px;border-radius:50%;object-fit:cover;background:var(--accs);color:var(--acc);display:inline-flex;align-items:center;justify-content:center;font-size:28px;font-weight:600;flex:none;vertical-align:middle;margin-right:16px}.av.lg{width:180px;height:180px;font-size:64px;margin:0 8px 0 0;border-radius:16px}.av.sm{width:44px;height:44px;font-size:18px;margin-right:8px}.nm{display:flex;align-items:center}.mut{color:var(--mut)}#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--card);padding:14px 22px;border-radius:12px;font-size:17px;opacity:0;transition:opacity .3s;z-index:99;pointer-events:none;max-width:90%}.hide{display:none}
+
+/* ---------- Mobile ---------- */
+html{-webkit-text-size-adjust:100%}
+body{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+button,input,select,label,summary{touch-action:manipulation}
+nav{position:sticky;top:0;z-index:5;background:var(--bg);scrollbar-width:none}nav::-webkit-scrollbar{display:none}
+#toast{bottom:calc(24px + env(safe-area-inset-bottom))}
+@media(max-width:700px){
+ body{font-size:16px}
+ header{padding:14px 14px 0}h1{font-size:22px}header .sub{font-size:14px}
+ main{padding:12px}.card{padding:12px;border-radius:10px}
+ .top{padding:0 12px!important;gap:8px}.top>button{flex:1 1 calc(50% - 8px);padding:10px 8px;font-size:15px}
+ nav{padding:0 8px;margin-top:10px}nav button{padding:12px 14px;font-size:16px}
+ button.b,input,select{min-height:44px}
+ input[type=checkbox]{min-height:0;width:20px;height:20px}
+ main .row>input:not([type=checkbox]),main .row>select{flex:1 1 140px;min-width:0}
+ .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.kpi{padding:12px}.kpi b{font-size:28px}
+ h2{font-size:18px}
+ th,td{font-size:16px}
+ .seg button{padding:12px 18px}
+ dialog{font-size:16px;width:96%;max-height:calc(100dvh - 20px);padding:14px;border-radius:14px}
+ dialog.wide{max-width:96%}
+ .av.lg{width:120px;height:120px;font-size:44px}
+ .av{width:56px;height:56px;font-size:22px;margin-right:12px}
+ /* wide tables become one card per row */
+ table.rt,table.rt tbody,table.rt tr,table.rt td{display:block;width:100%}
+ table.rt thead{display:block}
+ table.rt thead tr{display:flex;flex-wrap:wrap;gap:6px;padding:0 0 8px}
+ table.rt thead th{border:1px solid var(--line);border-radius:99px;padding:6px 12px;font-size:12px;background:var(--card)}
+ table.rt.nohd thead{display:none}
+ table.rt thead th:empty{display:none}
+ table.rt tbody tr{border:1px solid var(--line);border-radius:12px;padding:6px 12px;margin-bottom:10px;background:var(--card)}
+ table.rt td{display:flex;justify-content:space-between;align-items:center;gap:12px;border:0;padding:7px 0;text-align:right;min-height:40px}
+ table.rt td::before{content:attr(data-l);color:var(--mut);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;text-align:left;flex:none}
+ table.rt td:first-child{justify-content:flex-start;text-align:left;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:4px}
+ table.rt td:first-child::before,table.rt td:not([data-l])::before{display:none}
+ table.rt td:not([data-l]){justify-content:flex-end}
+ .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+}
+@media(max-width:380px){.top>button{flex:1 1 100%}}
+</style></head><body>
+<header><h1>MAS Choir Tracker <select id="sess" onchange="sessPick(this.value)" title="Switch year / session" style="font:inherit;padding:2px 8px;width:auto;vertical-align:middle"></select></h1>
+<div class="sub">Import your roster (Excel or CSV), then track attendance · saved in this browser</div></header>
+<div class="row top" style="max-width:1560px;margin:12px auto 0;padding:0 16px">
+<button class="b pri" onclick="$('#file').click()">Import data</button>
+<button class="b" onclick="$('#files').click()">Import photos</button>
+<button class="b" onclick="$('#idf').click()">Scan ID card</button>
+<input type="file" id="idf" class="hide" accept="image/*" onchange="scanId(this.files[0]);this.value=''">
+<button class="b" onclick="template()">Download template</button>
+<button class="b" id="syncb" onclick="syncNow(false)" style="margin-left:auto">☁ Sync</button>
+<input type="file" id="files" class="hide" accept="image/*" multiple onchange="importPhotos([...this.files]);this.value=''">
+<input type="file" id="file" class="hide" accept=".xlsx,.xls,.csv" onchange="importFile(this.files[0]);this.value=''"></div>
+<nav id="nav"></nav>
+<main id="main"></main>
+
+<dialog id="dlg"><form method="dialog" id="frm"></form></dialog>
+<dialog id="cropd"></dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const SEED=[];
+const META='mas_choir_meta';
+let meta;try{meta=JSON.parse(localStorage.getItem(META))}catch(e){}
+if(!meta||!Array.isArray(meta.list)||!meta.list.length||!meta.list.includes(meta.cur))meta={cur:'2026-27',list:['2026-27']};
+const skey=n=>n==='2026-27'?'mas_choir_v1':'mas_choir_s_'+n;
+const saveMeta=()=>{try{localStorage.setItem(META,JSON.stringify(meta))}catch(e){}};
+let KEY=skey(meta.cur);
+const SYNC='mas_choir_sync';
+let sync;try{sync=JSON.parse(localStorage.getItem(SYNC))}catch(e){}
+if(!sync||typeof sync!=='object')sync={};
+const saveSync=()=>{try{localStorage.setItem(SYNC,JSON.stringify(sync))}catch(e){}};
+var _busy=false,_err='',_lastCheck=0,_ap;const _ls={};try{_ls[KEY]=localStorage.getItem(KEY)}catch(e){}
+let st;
+try{st=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!st||!st.students){st={students:SEED,att:{}}}
+const fix=()=>{st.events=st.events||[];st.evAtt=st.evAtt||{};st.holidays=st.holidays||{};st.events.forEach(e=>e.holidays=e.holidays||{});st.att=st.att||{}};fix();
+const save=()=>{let s=null;try{s=JSON.stringify(st);localStorage.setItem(KEY,s)}catch(e){}if(s!==null&&s!==_ls[KEY]){_ls[KEY]=s;sync.d=sync.d||{};sync.d[meta.cur]=Date.now();saveSync();refreshSyncUI();if(sync.auto&&sync.url&&sync.key)autoPush()}};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const iso=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*6e4);return z.toISOString().slice(0,10)};
+const ROM=['I','II','III','IV','V','VI','VII','VIII'];
+const clsKey=c=>{const i=ROM.indexOf(c);return i<0?99:i};
+let evId='',evDate='',histId='',tab='dash',date=iso(new Date()),q='',fStatus='Active',fClass='',fBatch='',showAll=false,sortK='name',sortD=1,sq='';
+const tabs=[['dash','Dashboard'],['att','Attendance'],['ev','Events'],['stu','Students'],['hist','History'],['chk','Data checks']];
+const active=()=>st.students.filter(s=>s.status==='Active');
+const dow=d=>new Date(d+'T00:00:00').getDay();
+const batchOf=d=>[1,3,5].includes(dow(d))?'MWF':[2,4,6].includes(dow(d))?'TTS':'';
+function stats(s){let p=0,a=0;for(const d in st.att){if(st.holidays[d])continue;const v=st.att[d][s.id];if(v==='P')p++;else if(v==='A')a++}
+ return{p,a,t:p+a,pct:p+a?Math.round(100*p/(p+a)):null}}
+const av=(s,c='')=>s.photo?`<img class="av ${c}" src="${s.photo}" alt="">`:`<span class="av ${c}">${esc((s.name||'?').trim().slice(0,1).toUpperCase())}</span>`;
+let pendingPhoto='';
+function resizeImg(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{
+ const S=480,k=Math.min(1,S/Math.min(im.width,im.height)),w=im.width*k,h=im.height*k,sz=Math.min(w,h),c=document.createElement('canvas');
+ c.width=c.height=sz;c.getContext('2d').drawImage(im,(w-sz)/2/k,(h-sz)/2/k,sz/k,sz/k,0,0,sz,sz);res(c.toDataURL('image/jpeg',.82))};im.onerror=rej;im.src=r.result};r.onerror=rej;r.readAsDataURL(f)})}
+function readPhoto(inp){const f=inp.files[0];inp.value='';if(!f)return;const r=new FileReader();r.onload=()=>cropPhoto(r.result,d=>{if(d){pendingPhoto=d;$('#pv').innerHTML=av({photo:d},'lg')}});r.onerror=()=>alert('Could not read that image');r.readAsDataURL(f)}
+function recrop(){if(!pendingPhoto){alert('Upload a photo first');return}cropPhoto(pendingPhoto,d=>{if(d){pendingPhoto=d;$('#pv').innerHTML=av({photo:d},'lg')}})}
+/* ---------- Crop photo ---------- */
+function cropPhoto(src,done){
+ const im=new Image();im.onerror=()=>alert('Could not read that image');
+ im.onload=()=>{
+  const D=$('#cropd');
+  D.innerHTML=`<form method="dialog"><h2>Crop photo</h2><p class="sub" style="margin:4px 0 8px">Drag the box to move it, drag a corner to resize it. The photo is saved as a square.</p><canvas id="cpc" style="width:100%;touch-action:none;border:1px solid var(--line);border-radius:8px;cursor:move"></canvas><div class="row" style="margin-top:8px"><span class="sub">Size</span><input type="range" id="cps" min="20" max="100" value="80" style="flex:1;width:auto"><button type="button" class="b" id="cpr">Rotate ⟳</button></div><div class="row" style="margin-top:10px"><button class="b pri" value="ok">Use this crop</button><button class="b" value="x" formnovalidate>Cancel</button></div></form>`;
+  const c=$('#cpc'),g=c.getContext('2d'),sl=$('#cps'),n=Math.min(1,2000/Math.max(im.width,im.height)),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  let rot=0,base,bw,bh,dw,dh,k,box,mv=null,rs=null;
+  const hs=()=>Math.max(16,dw/28),corners=()=>[[box.x,box.y],[box.x+box.s,box.y],[box.x,box.y+box.s],[box.x+box.s,box.y+box.s]];
+  const draw=()=>{g.clearRect(0,0,dw,dh);g.drawImage(base,0,0,dw,dh);g.fillStyle='rgba(0,0,0,.5)';g.fillRect(0,0,dw,dh);g.drawImage(base,box.x/k,box.y/k,box.s/k,box.s/k,box.x,box.y,box.s,box.s);g.strokeStyle='#fff';g.lineWidth=2;g.strokeRect(box.x,box.y,box.s,box.s);const h=hs();g.fillStyle='#fff';for(const[cx,cy]of corners())g.fillRect(cx-h/2,cy-h/2,h,h)};
+  const build=()=>{const sw=im.width*n,sh=im.height*n,a=rot%180?sh:sw,b=rot%180?sw:sh;bw=Math.round(a);bh=Math.round(b);base=document.createElement('canvas');base.width=bw;base.height=bh;const x=base.getContext('2d');x.translate(bw/2,bh/2);x.rotate(rot*Math.PI/180);x.drawImage(im,-sw/2,-sh/2,sw,sh);
+   dw=Math.min(bw,900);k=dw/bw;dh=Math.round(bh*k);c.width=dw;c.height=dh;const s=Math.min(dw,dh)*.8;box={x:(dw-s)/2,y:(dh-s)/2,s};sl.value=80;draw()};
+  const pt=e=>{const r=c.getBoundingClientRect();return[(e.clientX-r.left)*dw/r.width,(e.clientY-r.top)*dh/r.height]};
+  c.onpointerdown=e=>{c.setPointerCapture(e.pointerId);const[x,y]=pt(e),h=hs()*1.3,i=corners().findIndex(([cx,cy])=>Math.abs(x-cx)<h&&Math.abs(y-cy)<h);
+   if(i>=0){const a=corners()[3-i];rs={i,ax:a[0],ay:a[1]}}
+   else{if(!(x>=box.x&&x<=box.x+box.s&&y>=box.y&&y<=box.y+box.s)){box.x=clamp(x-box.s/2,0,dw-box.s);box.y=clamp(y-box.s/2,0,dh-box.s)}mv={ox:x-box.x,oy:y-box.y};draw()}};
+  c.onpointermove=e=>{if(!rs&&!mv)return;const[x,y]=pt(e);
+   if(rs){const sgx=rs.i%2?1:-1,sgy=rs.i<2?-1:1,mx=sgx>0?dw-rs.ax:rs.ax,my=sgy>0?dh-rs.ay:rs.ay;let s=Math.max(sgx*(x-rs.ax),sgy*(y-rs.ay));s=Math.max(30,Math.min(s,mx,my));box={x:sgx>0?rs.ax:rs.ax-s,y:sgy>0?rs.ay:rs.ay-s,s};sl.value=Math.round(s/Math.min(dw,dh)*100)}
+   else{box.x=clamp(x-mv.ox,0,dw-box.s);box.y=clamp(y-mv.oy,0,dh-box.s)}draw()};
+  c.onpointerup=c.onpointercancel=()=>{rs=mv=null};
+  sl.oninput=()=>{const s=Math.max(30,Math.min(dw,dh)*sl.value/100),cx=box.x+box.s/2,cy=box.y+box.s/2;box.s=s;box.x=clamp(cx-s/2,0,dw-s);box.y=clamp(cy-s/2,0,dh-s);draw()};
+  $('#cpr').onclick=()=>{rot=(rot+90)%360;build()};
+  D.onclose=()=>{const ok=D.returnValue==='ok';D.returnValue='';if(!ok){done(null);return}
+   const side=box.s/k,o=document.createElement('canvas');o.width=o.height=Math.min(480,Math.round(side));o.getContext('2d').drawImage(base,box.x/k,box.y/k,side,side,0,0,o.width,o.height);done(o.toDataURL('image/jpeg',.82))};
+  build();D.showModal()};
+ im.src=src}
+const nk=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+async function importPhotos(files){if(!st.students.length){alert('Import or add students first, then import photos.');return}
+ let ok=0;const miss=[];
+ for(const f of files){const base=nk(f.name.replace(/\.[^.]+$/,''));
+  const s=st.students.find(x=>x.adm&&nk(x.adm)===base)||st.students.find(x=>nk(x.name)===base);
+  if(!s){miss.push(f.name);continue}
+  try{s.photo=await resizeImg(f);ok++}catch(e){miss.push(f.name)}}
+ save();render();
+ alert(ok+' photo(s) matched and imported.'+(miss.length?'\n\nNo match for: '+miss.slice(0,15).join(', ')+(miss.length>15?'…':'')+'\n(Name each file with the Adm. No. or the exact student name, e.g. J09049.jpg)':''))}
+function pctPill(x){if(x==null)return'<span class="mut">–</span>';return`<span class="pill ${x>=75?'ok':x>=50?'warn':'bad'}">${x}%</span>`}
+
+function mobTables(){document.querySelectorAll('#main table').forEach(t=>{const ths=[...t.querySelectorAll('thead th')];if(ths.length<5)return;t.classList.add('rt');if(!ths.some(h=>h.hasAttribute('onclick')))t.classList.add('nohd');
+ t.querySelectorAll('tbody tr').forEach(r=>[...r.children].forEach((c,i)=>{if(c.tagName==='TD'&&!c.dataset.l&&ths[i]){const l=ths[i].textContent.replace(/[▲▼]/g,'').trim();if(l)c.dataset.l=l}}))})}
+function render(){
+ $('#nav').innerHTML=tabs.map(([k,l])=>`<button class="${k===tab?'on':''}" onclick="tab='${k}';render()">${l}</button>`).join('');
+ $('#main').innerHTML={dash,att,stu,ev,hist,chk}[tab]();mobTables();
+ if(tab==='stu'||tab==='att'){const e=$('#q');if(e&&e.dataset.f){e.focus();e.setSelectionRange(e.value.length,e.value.length)}}
+}
+/* ---------- Dashboard ---------- */
+function dash(){
+ if(!st.students.length)return empty();
+ const A=active(),dates=Object.keys(st.att).filter(d=>!st.holidays[d]).sort();
+ const all=st.students;const cnt=k=>all.filter(s=>s.status===k).length;
+ const rows=A.map(s=>({s,...stats(s)}));
+ const marked=rows.filter(r=>r.t);
+ const avg=marked.length?Math.round(marked.reduce((x,r)=>x+r.pct,0)/marked.length):null;
+ const by=(f)=>{const m={};A.forEach(s=>{const k=f(s)||'—';m[k]=(m[k]||0)+1});return m};
+ const cls=by(s=>s.cls),bat=by(s=>s.batch),gen=by(s=>s.gender);
+ const mini=(m,sort)=>Object.entries(m).sort(sort||((a,b)=>b[1]-a[1])).map(([k,v])=>`<tr><td>${esc(k)}</td><td style="width:55%"><div class="bar"><i style="width:${100*v/A.length}%;background:var(--acc)"></i></div></td><td style="text-align:right">${v}</td></tr>`).join('');
+ const low=marked.filter(r=>r.pct<75).sort((a,b)=>a.pct-b.pct).slice(0,8);
+ const trend=dates.slice(-14).map(d=>{const v=Object.values(st.att[d]);const p=v.filter(x=>x==='P').length;return{d,p,n:v.length}});
+ const W=520,H=130,bw=Math.min(W/Math.max(trend.length,1),48);
+ const chart=trend.length?`<svg viewBox="0 0 ${W} ${H+20}" width="100%" role="img" aria-label="Daily attendance">${trend.map((t,i)=>{const h=t.n?H*t.p/t.n:0;return`<rect x="${i*bw+4}" y="${H-h}" width="${bw-8}" height="${h}" rx="3" fill="var(--ok)"><title>${t.d}: ${t.p}/${t.n} present</title></rect><text x="${i*bw+bw/2}" y="${H+14}" font-size="10" text-anchor="middle" fill="var(--mut)">${t.d.slice(8)}/${t.d.slice(5,7)}</text>`}).join('')}</svg>`:'<p class="mut">No attendance marked yet. Go to the Attendance tab.</p>';
+ return`<div class="grid" style="margin-bottom:16px">
+ <div class="kpi"><b>${A.length}</b><span>Active students</span></div>
+ <div class="kpi"><b>${cnt('Left')+cnt('Removed')}</b><span>Left / removed</span></div>
+ <div class="kpi"><b>${dates.length}</b><span>Attendance days</span></div>
+ <div class="kpi"><b>${st.events.length}</b><span>Events</span></div>
+ <div class="kpi"><b>${avg==null?'–':avg+'%'}</b><span>Avg attendance</span></div>
+ <div class="kpi"><b>${A.filter(s=>s.role==='Singer').length}</b><span>Marked “Singer”</span></div></div>
+ <div class="two"><div class="card"><h2>Daily attendance (last 14 sessions)</h2>${chart}</div>
+ <div class="card"><h2>Needs attention (&lt;75%)</h2>${low.length?`<table>${low.map(r=>`<tr><td>${esc(r.s.name)}<div class="sub">${esc(r.s.cls)}-${esc(r.s.sec)}</div></td><td>${r.p}/${r.t}</td><td>${pctPill(r.pct)}</td></tr>`).join('')}</table>`:'<p class="mut">Nobody below 75% yet.</p>'}</div></div>
+ <div class="two"><div class="card"><h2>By class</h2><table>${mini(cls,(a,b)=>clsKey(a[0])-clsKey(b[0]))}</table></div>
+ <div class="card"><h2>By batch</h2><table>${mini(bat)}</table><h2 style="margin-top:14px">By gender</h2><table>${mini(gen)}</table></div></div>
+ ${balanceCard(A)}`;
+}
+/* ---------- Attendance ---------- */
+function att(){
+ if(!st.students.length)return empty();
+ if(st.holidays[date])return attHoliday();
+ const b=batchOf(date);const day=st.att[date]||{};
+ let L=active();
+ if(!showAll&&b)L=L.filter(s=>s.batch===b);
+ if(q)L=L.filter(s=>(s.name+s.adm).toLowerCase().includes(q.toLowerCase()));
+ L=L.slice().sort((a,b)=>clsKey(a.cls)-clsKey(b.cls)||a.name.localeCompare(b.name));
+ const P=L.filter(s=>day[s.id]==='P').length,A=L.filter(s=>day[s.id]==='A').length;
+ return`<div class="card"><div class="row">
+ <input type="date" value="${date}" onchange="date=this.value;render()">
+ <span class="pill">${b?b+' day':'No regular batch (Sun)'}</span><button class="b" onclick="setHoliday(date)">Mark as holiday</button>
+ <label class="sub"><input type="checkbox" ${showAll?'checked':''} onchange="showAll=this.checked;render()"> show all active students</label>
+ <input id="q" data-f="1" placeholder="Search name / adm no" value="${esc(q)}" oninput="q=this.value;render()">
+ <span style="flex:1"></span>
+ <button class="b" onclick="markAll('P')">All present</button><button class="b" onclick="markAll('A')">All absent</button><button class="b" onclick="markAll('')">Clear</button></div>
+ <div class="row"><span class="pill ok">${P} present</span><span class="pill bad">${A} absent</span><span class="pill warn">${L.length-P-A} unmarked</span></div>
+ <div class="tw"><table><thead><tr><th>Student</th><th>Class</th><th>Batch</th><th>Today</th><th>Overall</th></tr></thead><tbody>
+ ${L.map(s=>{const v=day[s.id],x=stats(s);return`<tr><td><div class="nm" style="cursor:pointer" title="View history" onclick="openHist('${s.id}')">${av(s)}<div>${esc(s.name)}<div class="sub">${esc(s.adm)}</div></div></div></td><td>${esc(s.cls)}-${esc(s.sec)}</td><td>${esc(s.batch)}</td>
+ <td><div class="seg"><button class="p ${v==='P'?'on':''}" onclick="mark('${s.id}','P')">Present</button><button class="a ${v==='A'?'on':''}" onclick="mark('${s.id}','A')">Absent</button></div></td>
+ <td>${pctPill(x.pct)} <span class="sub">${x.p}/${x.t}</span></td></tr>`}).join('')||'<tr><td colspan=5 class="mut">No students for this day.</td></tr>'}
+ </tbody></table></div></div>
+ ${Object.keys(st.att).length?`<div class="row"><button class="b" onclick="exportAtt()">Export attendance CSV</button></div>`:''}${holCard()}`;
+}
+function mark(id,v){st.att[date]=st.att[date]||{};if(st.att[date][id]===v)delete st.att[date][id];else st.att[date][id]=v;
+ if(!Object.keys(st.att[date]).length)delete st.att[date];save();const y=scrollY;render();scrollTo(0,y)}
+function markAll(v){const b=batchOf(date);let L=active();if(!showAll&&b)L=L.filter(s=>s.batch===b);if(q)L=L.filter(s=>(s.name+s.adm).toLowerCase().includes(q.toLowerCase()));
+ st.att[date]=st.att[date]||{};L.forEach(s=>{if(v)st.att[date][s.id]=v;else delete st.att[date][s.id]});
+ if(!Object.keys(st.att[date]).length)delete st.att[date];save();render()}
+/* ---------- Students ---------- */
+function stu(){
+ if(!st.students.length)return empty();
+ let L=st.students.filter(s=>(!fStatus||s.status===fStatus)&&(!fClass||s.cls===fClass)&&(!fBatch||s.batch===fBatch)&&(!sq||(s.name+s.adm+s.phone+(s.note||'')).toLowerCase().includes(sq.toLowerCase())));
+ const val=s=>sortK==='cls'?clsKey(s.cls):sortK==='pct'?(stats(s).pct??-1):(s[sortK]||'').toString().toLowerCase();
+ L=L.slice().sort((a,b)=>{const x=val(a),y=val(b);return(x<y?-1:x>y?1:0)*sortD});
+ const opt=(arr,v)=>arr.map(o=>`<option ${o===v?'selected':''}>${esc(o)}</option>`).join('');
+ const uniq=k=>[...new Set(st.students.map(s=>s[k]).filter(Boolean))];
+ const th=(k,l)=>`<th onclick="sortK='${k}';sortD=sortK==='${k}'&&${sortK==k?sortD:0}===1?-1:1;render()">${l}${sortK===k?(sortD>0?' ▲':' ▼'):''}</th>`;
+ return`<div class="card"><div class="row">
+ <input id="q" data-f="1" placeholder="Search name, adm no, phone" value="${esc(sq)}" oninput="sq=this.value;render()">
+ <select onchange="fStatus=this.value;render()"><option value="">All status</option>${opt(uniq('status'),fStatus)}</select>
+ <select onchange="fClass=this.value;render()"><option value="">All classes</option>${opt(uniq('cls').sort((a,b)=>clsKey(a)-clsKey(b)),fClass)}</select>
+ <select onchange="fBatch=this.value;render()"><option value="">All batches</option>${opt(uniq('batch'),fBatch)}</select>
+ <span style="flex:1"></span><button class="b pri" onclick="edit()">+ Add student</button>
+ <button class="b" onclick="exportStu()">Export CSV</button></div>
+ <div class="sub" style="margin-bottom:8px">${L.length} shown · click any detail (name, class, adm no, phone…) to edit that box</div>
+ <div class="tw"><table><thead><tr>${th('name','Name')}${th('cls','Class')}${th('adm','Adm No')}<th>Phone</th>${th('batch','Batch')}${th('status','Status')}${th('pct','Attendance')}<th></th></tr></thead><tbody>
+ ${L.map(s=>{const x=stats(s),E=k=>`onclick="edit('${s.id}',null,'${k}')" style="cursor:text" title="Click to edit"`;return`<tr><td ${E('name')}><div class="nm">${av(s)}<span>${esc(s.name)}${s.role==='Singer'?' <span class="pill">Singer</span>':''}${s.note?`<div class="sub" style="font-size:14px;white-space:pre-wrap">📝 ${esc(s.note)}</div>`:''}</span></div></td><td ${E('cls')}>${esc(s.cls)}-${esc(s.sec)}</td><td ${E('adm')}>${esc(s.adm)}</td><td ${E('phone')}>${esc(s.phone)||'<span class="mut">–</span>'}</td><td ${E('batch')}>${esc(s.batch)}</td>
+ <td ${E('status')}><span class="pill ${s.status==='Active'?'ok':'bad'}">${esc(s.status)}</span></td><td ${E('name')}>${pctPill(x.pct)}</td><td><button class="b" onclick="openHist('${s.id}')">History</button></td></tr>`}).join('')}
+ </tbody></table></div></div>`;
+}
+function edit(id,pre,fk){
+ const s=st.students.find(x=>x.id===id)||{id:'',photo:'',name:'',cls:'',sec:'',adm:'',phone:'',status:'Active',leaving:'',note:'',batch:'Auto',gender:'',role:''};
+ if(!id&&pre)Object.assign(s,pre);
+ const f=(k,l,t='text')=>`<label>${l}<input name="${k}" type="${t}" value="${esc(s[k])}"></label>`;
+ const sel=(k,l,a)=>`<label>${l}<select name="${k}">${a.map(o=>`<option ${o===s[k]?'selected':''}>${o}</option>`).join('')}</select></label>`;
+ $('#frm').innerHTML=`<h2>${id?'Edit':'Add'} student</h2>${pre&&pre.raw!=null?`<div class="pill warn" style="margin:6px 0">Read from ID card — please check every field</div><details class="sub"><summary style="cursor:pointer">Text read from the card</summary><pre style="white-space:pre-wrap;margin:6px 0">${esc(pre.raw)}</pre></details>`:''}<div class="row" style="margin-top:10px"><span id="pv">${av(s,'lg')}</span><div><label style="margin:0" class="b" for="ph"><span class="pill" style="cursor:pointer;padding:6px 12px">Upload photo</span></label><input id="ph" type="file" accept="image/*" class="hide" onchange="readPhoto(this)"> <button type="button" class="b" onclick="recrop()">Crop</button> <button type="button" class="b" onclick="pendingPhoto='';$('#pv').innerHTML=av({name:document.querySelector('[name=name]').value},'lg')">Remove</button></div></div>${f('name','Name')}${f('cls','Class (e.g. IV)')}${f('sec','Section')}${f('adm','Admission no')}${f('phone','Phone(s)')}
+ ${sel('status','Status',['Active','Left','Removed'])}${sel('batch','Batch',['Auto','MWF','TTS','Not Active'])}${sel('gender','Gender',['','Male','Female'])}${sel('role','Role',['','Singer','Ordinary'])}${f('leaving','Leaving date')}<label id="noteL">Note — why is this student leaving / being removed? (optional)<textarea name="note" rows="3" placeholder="Write a note here…" style="width:100%;box-sizing:border-box;font:inherit;padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);resize:vertical">${esc(s.note)}</textarea></label>
+ <div id="bhint" class="sub" style="margin-top:10px"></div><div class="row" style="margin-top:10px"><button class="b pri" value="ok">Save</button><button class="b" value="x" formnovalidate>Cancel</button>${id?'<button class="b" value="del" style="margin-left:auto;color:var(--bad)">Delete</button>':''}</div>`;
+ const D0=$('#dlg');D0.classList.toggle('wide',!!(pre&&pre.card));
+ if(pre&&pre.card){const F0=$('#frm'),kids=[...F0.childNodes],w=document.createElement('div'),side=document.createElement('div'),main=document.createElement('div');w.className='idw';side.className='idside';
+  const COL={N:'#2f7d4f',C:'#1d5fbf',A:'#b7791f',H:'#7c3aed'},FLD={N:'name',C:'cls',A:'adm',H:'phone'},K2={name:'N',cls:'C',sec:'C',adm:'A',phone:'H'};
+  side.innerHTML='<div class="sub" style="margin:0 0 6px"><b>Scanned ID card</b> — shown only while you check the details (not saved). Tap a marked detail on the card to edit that box; tap elsewhere on the card to zoom.</div><div class="idbox"><div class="idimg"><img alt="Scanned ID card"></div></div>';
+  const wrap=side.querySelector('.idimg'),im=wrap.querySelector('img'),ov={};im.src=pre.card;wrap.onclick=()=>wrap.classList.toggle('z');
+  for(const k in (pre.boxes||{})){if(!FLD[k])continue;const bb=pre.boxes[k],o=document.createElement('div');o.className='idov';o.style.cssText='left:'+bb.x*100+'%;top:'+bb.y*100+'%;width:'+bb.w*100+'%;height:'+bb.h*100+'%;border-color:'+COL[k];o.title='Edit '+FLD[k];
+   o.onclick=e=>{e.stopPropagation();const i=F0.elements[FLD[k]];if(i){i.focus();try{i.setSelectionRange(i.value.length,i.value.length)}catch(x){}}};wrap.appendChild(o);ov[k]=o}
+  const fi=e=>{const k=K2[e.target.name];for(const q in ov)ov[q].classList.toggle('on',q===k);if(k&&ov[k])side.querySelector('.idbox').scrollTo({left:Math.max(0,ov[k].offsetLeft-20),top:Math.max(0,ov[k].offsetTop-20),behavior:'smooth'})},fo=()=>{for(const q in ov)ov[q].classList.remove('on')};
+  if(F0._fi){F0.removeEventListener('focusin',F0._fi);F0.removeEventListener('focusout',F0._fo)}F0._fi=fi;F0._fo=fo;F0.addEventListener('focusin',fi);F0.addEventListener('focusout',fo);
+  kids.forEach(n=>main.appendChild(n));w.append(side,main);F0.appendChild(w)}
+ const upd=()=>{const F=$('#frm');if(!F.elements.batch)return;$('#noteL').style.display=(F.elements.status.value!=='Active'||F.elements.note.value)?'':'none';const b=F.elements.batch.value;$('#bhint').textContent=b==='Auto'?(F.elements.status.value!=='Active'?'Will be set to Not Active (student is not Active).':'Auto: will be placed in '+autoBatch(F.elements.role.value,F.elements.gender.value,st.students.filter(x=>x!==s))+' to keep the batches balanced for this Role + Gender.'):'';};
+ $('#frm').oninput=upd;$('#frm').onchange=upd;setTimeout(upd,0);
+ const d=$('#dlg');d.onclose=()=>{d.classList.remove('wide');const v=d.returnValue;if(v==='ok'){const fd=new FormData($('#frm'));const o=Object.fromEntries([...fd].filter(([k,x])=>typeof x==='string').map(([k,x])=>[k,x.trim()]));
+  if(!o.name)return;o.photo=pendingPhoto;if(o.batch==='Auto'){o.batch=o.status!=='Active'?'Not Active':autoBatch(o.role,o.gender,st.students.filter(x=>x!==s));toast(o.name+' → '+o.batch+' batch (auto-balanced)')}if(id)Object.assign(s,o);else{o.id='s'+Date.now();st.students.push(o)}save();render()}
+  else if(v==='del'&&confirm('Delete this student and their attendance?')){st.students=st.students.filter(x=>x.id!==id);for(const k in st.att)delete st.att[k][id];st.events.forEach(e=>e.students=e.students.filter(x=>x!==id));for(const k in st.evAtt)for(const d in st.evAtt[k])delete st.evAtt[k][d][id];save();render()}d.returnValue=''};
+ pendingPhoto=s.photo||'';d.showModal();
+ if(fk){const i=$('#frm').elements[fk];if(i){i.focus();try{i.setSelectionRange(i.value.length,i.value.length)}catch(x){}}}
+}
+/* ---------- Data checks ---------- */
+function chk(){
+ if(!st.students.length)return empty()+syncCard();
+ const issues=[];const A=st.students;
+ const seen={};A.forEach(s=>{(seen[s.adm]=seen[s.adm]||[]).push(s)});
+ A.forEach(s=>{const p=[];
+  if(!/^J\d{4,6}$/.test(s.adm))p.push('Admission no looks invalid ('+(s.adm||'blank')+')');
+  if(s.adm&&seen[s.adm].length>1)p.push('Duplicate admission no');
+  if(!s.phone)p.push('Phone missing');
+  else if(s.phone.split(/[,/]/).some(x=>x.trim().replace(/\D/g,'').length!==10))p.push('Phone number not 10 digits');
+  if(!s.gender)p.push('Gender missing');
+  if(s.status==='Active'&&s.batch==='Not Active')p.push('Active but batch is “Not Active”');
+  if(s.status!=='Active'&&!s.leaving)p.push('No leaving date');
+  p.forEach(m=>issues.push([s,m]))});
+ return`<div class="card"><h2>${issues.length} things worth fixing in the uploaded details</h2><div class="sub" style="margin-bottom:8px">Click a row to correct it.</div>
+ <div class="tw"><table><tbody>${issues.map(([s,m])=>`<tr onclick="edit('${s.id}')" style="cursor:pointer"><td>${esc(s.name)}</td><td>${esc(s.cls)}-${esc(s.sec)}</td><td><span class="pill warn">${esc(m)}</span></td></tr>`).join('')||'<tr><td class="mut">All clear.</td></tr>'}</tbody></table></div></div>
+ ${syncCard()}
+ <div class="card"><h2>Backup</h2><div class="row"><button class="b" onclick="backup()">Download backup (JSON)</button><label class="b" style="cursor:pointer">Restore backup<input type="file" accept=".json" class="hide" onchange="restore(this.files[0])"></label>
+ <button class="b" style="color:var(--bad)" onclick="if(confirm('Reset everything to the original spreadsheet data? Attendance will be erased.')){st={students:JSON.parse(JSON.stringify(SEED)),att:{},events:[],evAtt:{},holidays:{}};save();render()}">Reset to original</button></div></div>`;
+}
+
+/* ---------- Student history ---------- */
+function openHist(id){histId=id;tab='hist';render();scrollTo(0,0)}
+const fmtD=d=>new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',weekday:'short'});
+function histRows(s){return Object.keys(st.att).sort().filter(d=>!st.holidays[d]&&st.att[d][s.id]).map(d=>[d,st.att[d][s.id]])}
+function hist(){
+ if(!st.students.length)return empty();
+ const L=st.students.slice().sort((a,b)=>a.name.localeCompare(b.name));
+ const s=st.students.find(x=>x.id===histId);
+ const pick=`<div class="card"><div class="row" style="margin:0"><label class="sub" for="hs">Student</label>
+ <select id="hs" onchange="histId=this.value;render()" style="min-width:240px"><option value="">Select a student…</option>${L.map(x=>`<option value="${x.id}" ${x.id===histId?'selected':''}>${esc(x.name)} (${esc(x.cls)}-${esc(x.sec)}${x.status!=='Active'?' · '+esc(x.status):''})</option>`).join('')}</select></div></div>`;
+ if(!s)return pick+'<div class="card mut">Choose a student to see their full attendance history. You can also click a student’s name on the Attendance tab or the History button on the Students tab.</div>';
+ const R=histRows(s),x=stats(s);
+ const lastA=[...R].reverse().find(r=>r[1]==='A');
+ let streak=0;for(let i=R.length-1;i>=0&&R[i][1]==='P';i--)streak++;
+ const M={};R.forEach(([d,v])=>{const m=d.slice(0,7);M[m]=M[m]||{p:0,a:0};M[m][v==='P'?'p':'a']++});
+ const mn=m=>new Date(m+'-01T00:00:00').toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+ return pick+`<div class="card"><div class="row" style="margin:0">${av(s,'lg')}<div><h2 style="margin:0">${esc(s.name)}</h2>
+ <div class="sub">Class ${esc(s.cls)}-${esc(s.sec)} · Adm ${esc(s.adm)||'–'} · ${esc(s.batch)} · ${esc(s.phone)||'no phone'}</div>
+ <span class="pill ${s.status==='Active'?'ok':'bad'}">${esc(s.status)}</span></div>
+ <span style="flex:1"></span><button class="b" onclick="exportHist('${s.id}')">Export CSV</button></div></div>
+ <div class="grid" style="margin-bottom:16px"><div class="kpi"><b>${x.t}</b><span>Sessions recorded</span></div><div class="kpi"><b style="color:var(--ok)">${x.p}</b><span>Present</span></div>
+ <div class="kpi"><b style="color:var(--bad)">${x.a}</b><span>Absent</span></div><div class="kpi"><b>${x.pct==null?'–':x.pct+'%'}</b><span>Attendance</span></div>
+ <div class="kpi"><b>${streak}</b><span>Current present streak</span></div><div class="kpi"><b style="font-size:18px;line-height:1.6">${lastA?fmtD(lastA[0]):'None'}</b><span>Last absent</span></div></div>
+ ${evCard(s)}
+ ${R.length?`<div class="two"><div class="card"><h2>Attendance · month by month</h2><table><thead><tr><th>Month</th><th>Present</th><th>Absent</th><th>%</th></tr></thead><tbody>${Object.entries(M).map(([m,v])=>`<tr><td>${mn(m)}</td><td>${v.p}</td><td>${v.a}</td><td>${pctPill(Math.round(100*v.p/(v.p+v.a)))}</td></tr>`).join('')}</tbody></table></div>
+ <div class="card"><h2>All sessions (newest first)</h2><div class="tw" style="max-height:420px;overflow:auto"><table><tbody>${[...R].reverse().map(([d,v])=>`<tr><td>${fmtD(d)}</td><td style="text-align:right"><span class="pill ${v==='P'?'ok':'bad'}">${v==='P'?'Present':'Absent'}</span></td></tr>`).join('')}</tbody></table></div></div></div>`
+ :'<div class="card mut">No attendance has been marked for this student yet.</div>'}`;
+}
+function exportHist(id){const s=st.students.find(x=>x.id===id);dl('history_'+(s.adm||s.name).replace(/\W+/g,'_')+'.csv',csv([['Date','Status'],...histRows(s).map(([d,v])=>[d,v==='P'?'Present':'Absent'])]),'text/csv')}
+
+/* ---------- Events ---------- */
+const evStats=(e,s)=>{let p=0,a=0;const A=st.evAtt[e.id]||{};e.dates.forEach(d=>{if((e.holidays||{})[d])return;const v=(A[d]||{})[s.id];if(v==='P')p++;else if(v==='A')a++});return{p,a,t:p+a,pct:p+a?Math.round(100*p/(p+a)):null}};
+const evParts=e=>e.students.map(id=>st.students.find(s=>s.id===id)).filter(Boolean).sort((a,b)=>clsKey(a.cls)-clsKey(b.cls)||a.name.localeCompare(b.name));
+function evAvg(e){const r=evParts(e).map(s=>evStats(e,s).pct).filter(x=>x!=null);return r.length?Math.round(r.reduce((x,y)=>x+y,0)/r.length):null}
+function ev(){if(!st.students.length)return empty();const e=st.events.find(x=>x.id===evId);return e?evDetail(e):evList()}
+function evList(){
+ return`<div class="row"><h2 style="margin:0;flex:1">Events</h2><button class="b pri" onclick="evForm()">+ New event</button></div>
+ ${st.events.length?`<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(250px,1fr))">${st.events.map(e=>{const a=evAvg(e);return`<div class="card" style="cursor:pointer;margin:0" onclick="evId='${e.id}';evDate='';render()"><h2 style="margin-bottom:4px">${esc(e.name)}</h2>
+ <div class="sub" style="min-height:20px">${esc(e.desc)}</div><div class="row" style="margin:10px 0 0"><span class="pill">${e.students.length} students</span><span class="pill">${e.dates.length} session${e.dates.length==1?'':'s'}</span>${a==null?'':pctPill(a)}</div></div>`}).join('')}</div>`
+ :`<div class="card" style="text-align:center;padding:36px 16px"><p class="mut" style="margin:0 0 14px">No events yet. Create one for a concert, competition, rehearsal series or any special occasion — pick the students taking part and track their attendance separately from the daily Attendance tab.</p><button class="b pri" onclick="evForm()">+ New event</button></div>`}`}
+function evForm(id){const e=st.events.find(x=>x.id===id)||{name:'',desc:''};
+ $('#frm').innerHTML=`<h2>${id?'Edit':'New'} event</h2><label>Event name<input name="name" value="${esc(e.name)}" placeholder="e.g. Annual Day, Teachers' Day"></label><label>Description (optional)<input name="desc" value="${esc(e.desc)}"></label>
+ ${id?'':`<label>First session date (optional)<input name="date" type="date" value="${iso(new Date())}"></label>`}
+ <div class="row" style="margin-top:16px"><button class="b pri" value="ok">${id?'Save':'Create & pick students'}</button><button class="b" value="x" formnovalidate>Cancel</button>${id?'<button class="b" value="del" style="margin-left:auto;color:var(--bad)">Delete event</button>':''}</div>`;
+ const d=$('#dlg');d.onclose=()=>{const v=d.returnValue;d.returnValue='';const o=Object.fromEntries([...new FormData($('#frm'))].map(([k,x])=>[k,String(x).trim()]));
+  if(v==='ok'){if(!o.name)return;if(id){Object.assign(e,{name:o.name,desc:o.desc});save();render()}
+   else{const n={id:'e'+Date.now(),name:o.name,desc:o.desc,dates:o.date?[o.date]:[],students:[],holidays:{}};st.events.push(n);evId=n.id;evDate='';save();render();pickStudents(n.id)}}
+  else if(v==='del'&&confirm('Delete this event and all its attendance?')){st.events=st.events.filter(x=>x.id!==id);delete st.evAtt[id];evId='';save();render()}};
+ d.showModal()}
+function pickStudents(eid){const e=st.events.find(x=>x.id===eid);
+ const L=st.students.filter(s=>s.status==='Active'||e.students.includes(s.id)).sort((a,b)=>clsKey(a.cls)-clsKey(b.cls)||a.name.localeCompare(b.name));
+ const cl=[...new Set(L.map(s=>s.cls).filter(Boolean))].sort((a,b)=>clsKey(a)-clsKey(b));
+ $('#frm').innerHTML=`<h2>Students in “${esc(e.name)}”</h2>
+ <div class="row" style="margin:8px 0"><input id="ps" placeholder="Search" oninput="pFilter()" style="flex:1;min-width:120px"><select id="pc" onchange="pFilter()"><option value="">All classes</option>${cl.map(c=>`<option>${esc(c)}</option>`).join('')}</select></div>
+ <div class="row" style="margin:0 0 8px"><button type="button" class="b" onclick="pAll(true)">Select shown</button><button type="button" class="b" onclick="pAll(false)">Clear shown</button><span class="sub" id="pn"></span></div>
+ <div style="max-height:46vh;overflow:auto;border:1px solid var(--line);border-radius:8px">${L.map(s=>`<label class="pr" data-k="${esc((s.name+' '+s.adm).toLowerCase())}" data-c="${esc(s.cls)}" style="display:flex;align-items:center;gap:8px;margin:0;padding:6px 10px;border-bottom:1px solid var(--line);color:var(--ink);font-size:17px"><input type="checkbox" name="p" value="${s.id}" ${e.students.includes(s.id)?'checked':''} style="width:auto" onchange="pCount()">${av(s).replace('class="av ','class="av sm ')}<span>${esc(s.name)} <span class="sub">${esc(s.cls)}-${esc(s.sec)}</span></span></label>`).join('')}</div>
+ <div class="row" style="margin-top:14px"><button class="b pri" value="ok">Save</button><button class="b" value="x" formnovalidate>Cancel</button></div>`;
+ const d=$('#dlg');d.onclose=()=>{const v=d.returnValue;d.returnValue='';if(v!=='ok')return;e.students=[...document.querySelectorAll('#frm input[name=p]:checked')].map(i=>i.value);save();render()};
+ d.showModal();pCount()}
+const pRows=()=>[...document.querySelectorAll('#frm .pr')].filter(r=>r.style.display!=='none');
+function pFilter(){const q=$('#ps').value.toLowerCase(),c=$('#pc').value;document.querySelectorAll('#frm .pr').forEach(r=>r.style.display=(!q||r.dataset.k.includes(q))&&(!c||r.dataset.c===c)?'flex':'none')}
+function pAll(v){pRows().forEach(r=>r.querySelector('input').checked=v);pCount()}
+function pCount(){$('#pn').textContent=document.querySelectorAll('#frm input[name=p]:checked').length+' selected'}
+function evDetail(e){
+ const P=evParts(e);e.dates.sort();const AD=[...new Set([...e.dates,...Object.keys(e.holidays)])].sort();if(!AD.includes(evDate))evDate=AD[AD.length-1]||'';
+ const day=((st.evAtt[e.id]||{})[evDate])||{};const pc=P.filter(s=>day[s.id]==='P').length,ac=P.filter(s=>day[s.id]==='A').length;
+ return`<div class="row"><button class="b" onclick="evId='';render()">← All events</button><h2 style="margin:0;flex:1">${esc(e.name)}</h2><button class="b" onclick="evForm('${e.id}')">Edit</button><button class="b" onclick="exportEv('${e.id}')">Export CSV</button></div>
+ ${e.desc?`<div class="sub" style="margin:-4px 0 12px">${esc(e.desc)}</div>`:''}
+ <div class="card"><div class="row"><b>${P.length} students selected</b><button class="b pri" onclick="pickStudents('${e.id}')">Select students</button></div>
+  <div class="row" style="margin-bottom:0"><span class="sub">Sessions:</span>${AD.map(d=>`<span class="pill ${e.holidays[d]?'bad':''}" style="cursor:pointer;${d===evDate?'outline:2px solid var(--acc)':''}" onclick="evDate='${d}';render()">${fmtD(d).replace(/^\w+, /,'')}${e.holidays[d]?' · holiday':''}</span>`).join('')||'<span class="mut">none yet</span>'}
+  <input type="date" id="evnd" value="${iso(new Date())}"><button class="b" onclick="evAddDate('${e.id}')">+ Add session</button></div></div>
+ ${!P.length?'<div class="card mut">Select the students taking part in this event to start tracking.</div>':!evDate?'<div class="card mut">Add a session date to start marking attendance.</div>':e.holidays[evDate]?evHolBanner(e):`
+ <div class="card"><div class="row"><h2 style="margin:0">${fmtD(evDate)}</h2><span class="pill ok">${pc} present</span><span class="pill bad">${ac} absent</span><span class="pill warn">${P.length-pc-ac} unmarked</span><span style="flex:1"></span>
+  <button class="b" onclick="evAll('${e.id}','P')">All present</button><button class="b" onclick="evAll('${e.id}','A')">All absent</button><button class="b" onclick="evAll('${e.id}','')">Clear</button><button class="b" onclick="evSetHoliday('${e.id}',evDate)">Mark as holiday</button><button class="b" style="color:var(--bad)" onclick="evDelDate('${e.id}')">Delete session</button></div>
+  <div class="tw"><table><thead><tr><th>Student</th><th>Class</th><th>This session</th><th>Event total</th></tr></thead><tbody>${P.map(s=>{const v=day[s.id],x=evStats(e,s);return`<tr><td><div class="nm" style="cursor:pointer" onclick="openHist('${s.id}')">${av(s)}<div>${esc(s.name)}<div class="sub">${esc(s.adm)}</div></div></div></td><td>${esc(s.cls)}-${esc(s.sec)}</td>
+  <td><div class="seg"><button class="p ${v==='P'?'on':''}" onclick="evMark('${e.id}','${s.id}','P')">Present</button><button class="a ${v==='A'?'on':''}" onclick="evMark('${e.id}','${s.id}','A')">Absent</button></div></td><td>${pctPill(x.pct)} <span class="sub">${x.p}/${x.t}</span></td></tr>`}).join('')}</tbody></table></div></div>`}${evHolCard(e)}`}
+function evSet(eid,fn){const A=st.evAtt[eid]=st.evAtt[eid]||{};A[evDate]=A[evDate]||{};fn(A[evDate]);if(!Object.keys(A[evDate]).length)delete A[evDate];save();const y=scrollY;render();scrollTo(0,y)}
+function evMark(eid,sid,v){evSet(eid,d=>{if(d[sid]===v)delete d[sid];else d[sid]=v})}
+function evAll(eid,v){const e=st.events.find(x=>x.id===eid);evSet(eid,d=>evParts(e).forEach(s=>{if(v)d[s.id]=v;else delete d[s.id]}))}
+function evAddDate(eid){const v=$('#evnd').value;if(!v)return;const e=st.events.find(x=>x.id===eid);if(!e.dates.includes(v))e.dates.push(v);evDate=v;save();render()}
+function evDelDate(eid){const e=st.events.find(x=>x.id===eid);if(!confirm('Delete this session and its attendance?'))return;e.dates=e.dates.filter(d=>d!==evDate);delete e.holidays[evDate];if(st.evAtt[eid])delete st.evAtt[eid][evDate];evDate='';save();render()}
+function exportEv(eid){const e=st.events.find(x=>x.id===eid);dl('event_'+e.name.replace(/\W+/g,'_')+'.csv',csv([['Adm No','Name','Class',...e.dates.filter(d=>!e.holidays[d]),'Present','Absent','%'],...evParts(e).map(s=>{const x=evStats(e,s);return[s.adm,s.name,s.cls+'-'+s.sec,...e.dates.filter(d=>!e.holidays[d]).map(d=>((st.evAtt[e.id]||{})[d]||{})[s.id]||''),x.p,x.a,x.pct??'']})]),'text/csv')}
+function evCard(s){const E=st.events.filter(e=>e.students.includes(s.id));if(!E.length)return'';
+ return`<div class="card"><h2>Events</h2><table><thead><tr><th>Event</th><th>Present</th><th>Absent</th><th>%</th><th>Absent on</th></tr></thead><tbody>${E.map(e=>{const x=evStats(e,s),A=st.evAtt[e.id]||{};const ab=e.dates.filter(d=>!e.holidays[d]&&(A[d]||{})[s.id]==='A').map(d=>fmtD(d).replace(/^\w+, /,'')).join(', ');
+ return`<tr><td>${esc(e.name)}</td><td>${x.p}</td><td>${x.a}</td><td>${pctPill(x.pct)}</td><td class="sub">${ab||'–'}</td></tr>`}).join('')}</tbody></table></div>`}
+
+/* ---------- Holidays ---------- */
+function attHoliday(){const h=st.holidays[date];return`<div class="card"><div class="row"><input type="date" value="${date}" onchange="date=this.value;render()"><span class="pill warn">Holiday</span></div>
+ <h2 style="margin:8px 0 4px">${esc(h.reason||'Holiday')}</h2><p class="mut" style="margin:0 0 12px">${fmtD(date)} is a holiday, so attendance isn’t taken and it doesn’t count against anyone’s percentage.</p>
+ <button class="b" onclick="delHoliday('${date}')">Remove holiday</button></div>${holCard()}`}
+function setHoliday(d){const r=prompt('Holiday for '+fmtD(d)+'.\nReason (e.g. Diwali, Rain, School closed):','');if(r===null)return;st.holidays[d]={reason:r.trim()};save();render()}
+function delHoliday(d){delete st.holidays[d];save();render()}
+function addHolRange(){const a=$('#hf').value,b=$('#ht').value||a,r=$('#hr').value.trim(),skip=$('#hs2').checked;if(!a){alert('Choose a start date');return}
+ if(b<a){alert('End date is before start date');return}
+ let d=new Date(a+'T00:00:00'),end=new Date(b+'T00:00:00'),n=0;
+ while(d<=end&&n<366){if(!(skip&&d.getDay()===0)){st.holidays[iso(d)]={reason:r};n++}d.setDate(d.getDate()+1)}
+ save();render()}
+function holCard(){const H=Object.keys(st.holidays).sort();
+ return`<div class="card"><h2>Holidays</h2><div class="row"><label class="sub">From <input type="date" id="hf" value="${date}"></label><label class="sub">To <input type="date" id="ht" value="${date}"></label>
+ <input id="hr" placeholder="Reason (optional)"><label class="sub"><input type="checkbox" id="hs2" checked> skip Sundays</label><button class="b pri" onclick="addHolRange()">Add holiday</button></div>
+ ${H.length?`<div class="tw" style="max-height:260px;overflow:auto"><table><tbody>${H.map(d=>`<tr><td>${fmtD(d)}</td><td>${esc(st.holidays[d].reason)||'<span class="mut">–</span>'}</td><td style="text-align:right"><button class="b" onclick="delHoliday('${d}')">Remove</button></td></tr>`).join('')}</tbody></table></div>`:'<p class="mut" style="margin:0">No holidays set. Holiday dates are skipped in attendance and percentages.</p>'}</div>`}
+
+function evHolBanner(e){const h=e.holidays[evDate];return`<div class="card"><span class="pill warn">Holiday</span><h2 style="margin:8px 0 4px">${esc(h.reason||'Holiday')}</h2><p class="mut" style="margin:0 0 12px">${fmtD(evDate)} is a holiday for this event, so attendance isn’t taken and it doesn’t count against anyone.</p><button class="b" onclick="evDelHoliday('${e.id}','${evDate}')">Remove holiday</button></div>`}
+function evSetHoliday(eid,d){const e=st.events.find(x=>x.id===eid);const r=prompt('Holiday for '+fmtD(d)+'.\nReason (e.g. Diwali, Rain, Venue unavailable):','');if(r===null)return;e.holidays[d]={reason:r.trim()};save();render()}
+function evDelHoliday(eid,d){const e=st.events.find(x=>x.id===eid);delete e.holidays[d];save();render()}
+function evAddHolRange(eid){const e=st.events.find(x=>x.id===eid);const a=$('#ehf').value,b=$('#eht').value||a,r=$('#ehr').value.trim(),skip=$('#ehs').checked;if(!a){alert('Choose a start date');return}
+ if(b<a){alert('End date is before start date');return}
+ let d=new Date(a+'T00:00:00'),end=new Date(b+'T00:00:00'),n=0;
+ while(d<=end&&n<366){if(!(skip&&d.getDay()===0)){e.holidays[iso(d)]={reason:r};n++}d.setDate(d.getDate()+1)}
+ save();render()}
+function evHolCard(e){const H=Object.keys(e.holidays).sort(),d0=evDate||iso(new Date());
+ return`<div class="card"><h2>Holidays for this event</h2><div class="row"><label class="sub">From <input type="date" id="ehf" value="${d0}"></label><label class="sub">To <input type="date" id="eht" value="${d0}"></label>
+ <input id="ehr" placeholder="Reason (optional)"><label class="sub"><input type="checkbox" id="ehs" checked> skip Sundays</label><button class="b pri" onclick="evAddHolRange('${e.id}')">Add holiday</button></div>
+ ${H.length?`<div class="tw" style="max-height:260px;overflow:auto"><table><tbody>${H.map(d=>`<tr><td>${fmtD(d)}</td><td>${esc(e.holidays[d].reason)||'<span class="mut">–</span>'}</td><td style="text-align:right"><button class="b" onclick="evDelHoliday('${e.id}','${d}')">Remove</button></td></tr>`).join('')}</tbody></table></div>`:'<p class="mut" style="margin:0">No holidays for this event. Holiday dates are skipped in its attendance and percentages.</p>'}</div>`}
+
+/* ---------- Auto batch (MWF / TTS) balancing ---------- */
+function autoBatch(role,gender,pool){pool=(pool||st.students).filter(s=>s.status==='Active'&&(s.batch==='MWF'||s.batch==='TTS'));
+ const cell=pool.filter(s=>(s.role||'')===(role||'')&&(s.gender||'')===(gender||''));
+ const c=b=>cell.filter(s=>s.batch===b).length,o=b=>pool.filter(s=>s.batch===b).length;
+ if(c('MWF')!==c('TTS'))return c('MWF')<c('TTS')?'MWF':'TTS';
+ if(o('MWF')!==o('TTS'))return o('MWF')<o('TTS')?'MWF':'TTS';
+ return 'MWF'}
+function toast(m){let e=$('#toast');if(!e){e=document.createElement('div');e.id='toast';document.body.appendChild(e)}e.textContent=m;e.style.opacity=1;clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.opacity=0,4500)}
+function balanceCard(A){const keys=[];['Singer','Ordinary',''].forEach(r=>['Male','Female',''].forEach(g=>{if(A.some(s=>(s.role||'')===r&&(s.gender||'')===g))keys.push([r,g])}));
+ const cnt=(f,b)=>A.filter(s=>f(s)&&s.batch===b).length;const diff=(m,t)=>{const d=Math.abs(m-t);return`<span class="pill ${d<=1?'ok':d<=3?'warn':'bad'}">${d<=1?'balanced':'off by '+d}</span>`};
+ const rows=keys.map(([r,g])=>{const f=s=>(s.role||'')===r&&(s.gender||'')===g,m=cnt(f,'MWF'),t=cnt(f,'TTS');return`<tr><td>${r||'No role'} · ${g||'No gender'}</td><td>${m}</td><td>${t}</td><td>${diff(m,t)}</td></tr>`}).join('');
+ const M=A.filter(s=>s.batch==='MWF').length,T=A.filter(s=>s.batch==='TTS').length;
+ return`<div class="card"><h2>MWF / TTS balance</h2><div class="sub" style="margin-bottom:8px">New students are placed automatically (Batch “Auto”) to keep each Role + Gender group, and the two batches overall, as even as possible.</div>
+ <table><thead><tr><th>Role · Gender</th><th>MWF</th><th>TTS</th><th></th></tr></thead><tbody>${rows}<tr><td><b>All active</b></td><td><b>${M}</b></td><td><b>${T}</b></td><td>${diff(M,T)}</td></tr></tbody></table></div>`}
+
+/* ---------- Scan ID card (OCR) ---------- */
+const ROMANS={1:'I',2:'II',3:'III',4:'IV',5:'V',6:'VI',7:'VII',8:'VIII',9:'IX',10:'X'};
+function parseId(text){
+ const L=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean),T=L.join('\n'),o={};
+ let m=T.match(/(?:adm(?:ission)?\.?\s*(?:no\.?|number|#)?|reg(?:istration)?\.?\s*no\.?|id\s*no\.?)\s*[:\-.]?\s*([A-Za-z]{0,3}[\s-]?[0-9OIl]{3,8})/i)||T.match(/\b([Jj][\s-]?[0-9OIl]{4,6})\b/);
+ if(m){o.adm=m[1].replace(/[\s-]/g,'').toUpperCase().replace(/^([A-Z])(.*)$/,(x,a,b)=>a+b.replace(/O/g,'0').replace(/[IL]/g,'1'));if(/^[1IL]\d{5}$/.test(o.adm))o.adm='J'+o.adm.slice(1)}
+ const parentLine=l=>/^\s*[A-RT-Za-rt-z]\s*[.,]?\s*name\b/i.test(l)||/\b(mother|father|mom|dad|parent|guardian|spouse)\b/i.test(l);
+ let nm=null;for(const l of L){if(parentLine(l))continue;const k=l.match(/(?:\b(?:student|candidate|pupil|s)'?s?\s*[.,]?\s*)?\bname\s*[:\-.]?\s*(.+)$/i);if(k&&/[A-Za-z]{2}/.test(k[1])){nm=k[1];break}}
+ if(!nm){nm=L.find(l=>/^[A-Za-z][A-Za-z .]{4,28}$/.test(l)&&l.trim().split(/\s+/).length>=2&&!parentLine(l)&&l.split(/\s+/).some(w=>w.replace(/\W/g,'').length>=3)&&!/school|vidyalaya|public|class|address|phone|valid|principal|session|sec(tion)?|male|mobile|contact|name|d\.?o\.?b|birth|campus|bhagalpur|assisi|mount|headmaster|signature|address|year/i.test(l))||''}
+ if(nm)o.name=nm.replace(/[^A-Za-z .]/g,' ').replace(/\s+/g,' ').trim().toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());
+ m=T.match(/(?:class|std|standard)\s*[:\-.]?\s*([IVXivx]{1,4}|\d{1,2})(?:\s*(?:th|st|nd|rd))?\s*[-/\s]?\s*([A-Fa-f])?\b/i);
+ if(m){let c=m[1].toUpperCase();if(/^\d+$/.test(c))c=ROMANS[+c]||c;o.cls=c;if(m[2])o.sec=m[2].toUpperCase()}
+ if(!o.cls){for(const l of L){const k=l.match(/^\W*([IVX]{1,4}|\d{1,2})\s*[-\u2013\u2014_\/.|]?\s*([A-F])\W*$/);if(k&&(/[-\u2013\u2014_\/.|\s]/.test(l.trim().slice(1,-1))||k[1].length>1)){let c=k[1];if(/^\d+$/.test(c))c=ROMANS[+c]||c;o.cls=c;o.sec=k[2];break}}}
+ if(!o.cls){for(const l of L){const s=l.replace(/[\u2010-\u2015~=_|]/g,'-'),k=s.match(/(?:^|[^A-Za-z0-9])([IVX]{1,4}|\d{1,2})\s*-\s*([A-F])(?![A-Za-z0-9])/);if(k){let c=k[1];if(/^\d+$/.test(c))c=ROMANS[+c]||c;o.cls=c;o.sec=k[2];break}}}
+ if(!o.sec){m=T.match(/\bsec(?:tion)?\.?\s*[:\-.]?\s*([A-Fa-f])\b/i);if(m)o.sec=m[1].toUpperCase()}
+ const phL=L.map((l,i)=>({l,i,n:[...l.matchAll(/(?:\+?91[\s-]?)?([6-9]\d{4}[\s-]?\d{5})/g)].map(x=>x[1].replace(/\D/g,''))})).filter(x=>x.n.length&&!/school|vidyalaya|public|campus/i.test(x.l)&&!/school|vidyalaya/i.test(L.slice(Math.max(0,x.i-2),x.i).join(' ')));
+ if(phL.length>1)while(phL.length>1&&phL[0].i<4)phL.shift();
+ let ph=[...new Set(phL.flatMap(x=>x.n))];if(ph.length>2&&phL.length)ph=phL[phL.length-1].n;
+ if(ph.length)o.phone=ph.slice(0,2).join(', ');
+ if(/\bfemale\b|\bgirl\b/i.test(T))o.gender='Female';else if(/\bmale\b|\bboy\b/i.test(T))o.gender='Male';
+ return o}
+const loadScript=u=>new Promise((res,rej)=>{const s=document.createElement('script');s.src=u;s.onload=res;s.onerror=()=>rej(new Error('Could not load the text reader (internet needed)'));document.head.appendChild(s)});
+const clsFromBox=s=>{s=(s||'').toUpperCase().replace(/[^IVXA-F0-9]/g,'');const m=s.match(/^([IVX]{1,4}|\d{1,2})([A-F])$/);if(!m)return null;let c=m[1];if(/^\d+$/.test(c))c=ROMANS[+c]||c;return{cls:c,sec:m[2]}};
+async function scanId(file){if(!file)return;
+ const img=await new Promise(res=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>res(null);i.src=URL.createObjectURL(file)});
+ if(!img){alert('Could not open that image');return}
+ const W=Math.min(img.naturalWidth,1100),k=W/img.naturalWidth,H=Math.round(img.naturalHeight*k);
+ const F=[['P','1 · Student photo','#e0206a','mas_idbox'],['N','2 · Name','#2f7d4f','mas_idbox_name'],['C','3 · Class & section','#1d5fbf','mas_idbox_cls'],['A','4 · Adm. no','#b7791f','mas_idbox_adm'],['H','5 · Phone no','#7c3aed','mas_idbox_ph']];
+ $('#frm').innerHTML=`<h2>Scan ID card</h2><p class="sub" style="margin:4px 0 8px">Choose a field, then drag a box on the card over it (photo, name, class, adm. no, phone). Mark as many as you like — anything not marked is searched for automatically. Positions are remembered for the next cards.</p>
+ <div id="idsel" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">${F.map(f=>`<button type="button" class="b" data-m="${f[0]}" style="border-color:${f[2]};color:${f[2]};padding:6px 12px;font-size:15px"></button>`).join('')}<button type="button" class="b" id="idclr" style="padding:6px 12px;font-size:15px">Clear this area</button></div>
+ <canvas id="idc" style="width:100%;touch-action:none;border:1px solid var(--line);border-radius:8px;cursor:crosshair"></canvas><div id="idst" class="sub" style="margin:8px 0">Everything is read on this device. The first scan needs internet to load the reader.</div><div class="row"><button type="button" class="b pri" id="idgo">Read details</button><button class="b" value="x" formnovalidate>Cancel</button></div>`;
+ const c=$('#idc');c.width=W;c.height=H;const g=c.getContext('2d');
+ const box={},col={},sk={},lab={};for(const f of F){box[f[0]]=null;lab[f[0]]=f[1];col[f[0]]=f[2];sk[f[0]]=f[3]}
+ let mode='P',dr=null;
+ const draw=()=>{g.drawImage(img,0,0,W,H);for(const m in box){const R=box[m];if(!R)continue;g.strokeStyle=col[m];g.lineWidth=Math.max(3,W/250);g.fillStyle=col[m]+'26';g.fillRect(R.x,R.y,R.w,R.h);g.strokeRect(R.x,R.y,R.w,R.h)}};
+ for(const m in box)try{const sv=JSON.parse(localStorage.getItem(sk[m]));if(sv&&Math.abs(sv.a-W/H)<.2)box[m]={x:sv.x*W,y:sv.y*H,w:sv.w*W,h:sv.h*H}}catch(e){}
+ if(!box.P&&window.FaceDetector){try{new FaceDetector().detect(img).then(f=>{if(f[0]&&!box.P){const b=f[0].boundingBox,cx=b.x+b.width/2,cy=b.y+b.height*.7,s=b.width*2.4;box.P={x:(cx-s/2)*k,y:(cy-s/2)*k,w:s*k,h:s*k};draw();upd()}}).catch(()=>{})}catch(e){}}
+ const upd=()=>{document.querySelectorAll('#idsel [data-m]').forEach(b=>{const m=b.dataset.m;b.textContent=lab[m]+(box[m]?' ✓':'');b.style.opacity=mode===m?1:.55;b.style.background=mode===m?col[m]+'22':'var(--card)';b.style.fontWeight=mode===m?'600':'400'})};
+ const setMode=m=>{mode=m;upd();c.style.cursor='crosshair'};
+ draw();setMode('P');
+ document.querySelectorAll('#idsel [data-m]').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
+ $('#idclr').onclick=()=>{box[mode]=null;try{localStorage.removeItem(sk[mode])}catch(e){}draw();upd()};
+ const pt=e=>{const b=c.getBoundingClientRect();return[(e.clientX-b.left)*W/b.width,(e.clientY-b.top)*H/b.height]};
+ c.onpointerdown=e=>{c.setPointerCapture(e.pointerId);dr=pt(e);box[mode]=null};
+ c.onpointermove=e=>{if(!dr)return;const[x,y]=pt(e);box[mode]={x:Math.min(dr[0],x),y:Math.min(dr[1],y),w:Math.abs(x-dr[0]),h:Math.abs(y-dr[1])};draw()};
+ c.onpointerup=()=>{dr=null;const R=box[mode];if(R&&(R.w<12||R.h<8)){box[mode]=null;draw();upd()}else if(R){try{localStorage.setItem(sk[mode],JSON.stringify({x:R.x/W,y:R.y/H,w:R.w/W,h:R.h/H,a:W/H}))}catch(e){}const ks=F.map(f=>f[0]),nx=[...ks.slice(ks.indexOf(mode)+1),...ks.slice(0,ks.indexOf(mode))].find(m=>!box[m]);setMode(nx||mode)}};
+ const gray=(src,sx,sy,sw,sh,tw,inv)=>{const th=Math.round(sh*tw/sw),o=document.createElement('canvas');o.width=tw;o.height=th;const x=o.getContext('2d');x.drawImage(src,sx,sy,sw,sh,0,0,tw,th);const d=x.getImageData(0,0,tw,th),a=d.data;for(let i=0;i<a.length;i+=4){let v=.299*a[i]+.587*a[i+1]+.114*a[i+2];v=(v-128)*1.5+128;v=v<0?0:v>255?255:v;if(inv)v=255-v;a[i]=a[i+1]=a[i+2]=v}x.putImageData(d,0,0);return o};
+ /* validators for text read from a marked box */
+ const okName=tx=>{const n=tx.replace(/[^A-Za-z .]/g,' ').replace(/\s+/g,' ').trim().replace(/^(?:student'?s?\s*)?name\b\s*/i,'');return/[A-Za-z]{2}/.test(n)?n.toLowerCase().replace(/\b\w/g,x=>x.toUpperCase()):null};
+ const okAdm=tx=>{let s=tx.toUpperCase().replace(/[^A-Z0-9]/g,'').replace(/^(?:ADMISSION|ADM|REG|ID)?(?:NO|NUMBER)?/,'');const m=s.match(/^([A-Z]?)([0-9OIL]{3,8})$/);if(!m)return null;let r=m[1]+m[2].replace(/O/g,'0').replace(/[IL]/g,'1');if(/^[1IL]\d{5}$/.test(r))r='J'+r.slice(1);return r};
+ const okPhone=tx=>{const out=[];for(const l of tx.split(/\n/)){let d=l.replace(/\D/g,'');while(d.length>=10){if(d.length>=12&&d.startsWith('91')&&/^[6-9]/.test(d[2]))d=d.slice(2);if(/^[6-9]/.test(d)){out.push(d.slice(0,10));d=d.slice(10)}else d=d.slice(1)}}const u=[...new Set(out)].slice(0,2);return u.length?u.join(', '):null};
+ $('#idgo').onclick=async()=>{const S=$('#idst'),go=$('#idgo');go.disabled=true;
+  try{let photo='';const R=box.P;
+   if(R){const side=Math.min(R.w,R.h)/k,sx=(R.x+R.w/2)/k-side/2,sy=(R.y+R.h/2)/k-side/2,o=document.createElement('canvas');o.width=o.height=Math.min(480,Math.round(side));o.getContext('2d').drawImage(img,sx,sy,side,side,0,0,o.width,o.height);photo=o.toDataURL('image/jpeg',.85)}
+   if(!window.Tesseract){S.textContent='Loading text reader…';await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js')}
+   let label='';const w=await Tesseract.createWorker('eng',1,{logger:m=>{if(m.status==='recognizing text')S.textContent='Reading card… '+label+' '+Math.round(m.progress*100)+'%'}});
+   let boxText='';
+   const rd=async(m,name,psm,wl,ok)=>{const B=box[m];if(!B)return null;label=name;
+    const padx=B.w*.15/k,pady=B.h*.25/k,sx=Math.max(0,B.x/k-padx),sy=Math.max(0,B.y/k-pady),sw=Math.min(img.naturalWidth-sx,B.w/k+2*padx),sh=Math.min(img.naturalHeight-sy,B.h/k+2*pady);
+    await w.setParameters({tessedit_pageseg_mode:psm,tessedit_char_whitelist:wl});
+    let res=null;for(const inv of[false,true]){const tx=(await w.recognize(gray(img,sx,sy,sw,sh,Math.max(500,Math.round(sw*3)),inv))).data.text||'';boxText+='['+name+'] '+tx.trim().replace(/\n/g,' / ')+' | ';res=ok(tx);if(res)break}
+    boxText+='\n';return res};
+   const LET='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz .';
+   const nm=await rd('N','name','6',LET,okName);
+   const cs=await rd('C','class & section','7','IVXABCDEF0123456789-',clsFromBox);
+   const adm=await rd('A','adm. no','7','ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -.:',okAdm);
+   const ph=await rd('H','phone','6','0123456789+ -',okPhone);
+   await w.setParameters({tessedit_pageseg_mode:'3',tessedit_char_whitelist:''});
+   const wd=Math.min(2000,Math.max(1400,img.naturalWidth)),NW=img.naturalWidth,NH=img.naturalHeight,outs=[];
+   let passes=[['full card · normal','3',false],['full card · inverted','3',true],['scattered text','11',false]];
+   if(nm&&cs&&adm&&ph)passes=passes.slice(0,1); /* every text field already read from its box */
+   for(let n=0;n<passes.length;n++){const[lb,psm,inv]=passes[n];label=lb+' ('+(n+1)+'/'+passes.length+')';await w.setParameters({tessedit_pageseg_mode:psm});outs.push((await w.recognize(gray(img,0,0,NW,NH,wd,inv))).data.text||'')}
+   await w.terminate();
+   const ps=outs.map(parseId),p={};for(const q of['name','cls','sec','adm','gender'])p[q]=ps.map(x=>x[q]).find(Boolean)||'';
+   if(nm)p.name=nm;if(adm)p.adm=adm;if(cs){p.cls=cs.cls;p.sec=cs.sec}
+   p.phone=ph||[...new Set(ps.flatMap(x=>(x.phone||'').split(', ')).filter(Boolean))].slice(0,2).join(', ');
+   const text=boxText+outs.map((x,i)=>'--- pass '+(i+1)+' ('+passes[i][0]+') ---\n'+x).join('\n');const cw=Math.min(img.naturalWidth,1000),cv=document.createElement('canvas');cv.width=cw;cv.height=Math.round(img.naturalHeight*cw/img.naturalWidth);cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);const card=cv.toDataURL('image/jpeg',.8),boxes={};for(const m of['N','C','A','H'])if(box[m])boxes[m]={x:box[m].x/W,y:box[m].y/H,w:box[m].w/W,h:box[m].h/H};dlg.close('x');
+   const miss=[['name',p.name],['class',p.cls],['adm. no',p.adm],['phone',p.phone]].filter(x=>!x[1]).map(x=>x[0]);
+   setTimeout(()=>{edit(null,{...p,photo,raw:text,card,boxes});if(miss.length)toast('Not found: '+miss.join(', ')+' — mark that area on the card, or type it in.')},60)}
+  catch(e){S.textContent='Could not read the card: '+(e.message||e)+'. Check your internet connection, or add the student manually.';go.disabled=false}};
+ const dlg=$('#dlg');dlg.onclose=()=>{};dlg.showModal()}
+/* ---------- Export ---------- */
+const csv=rows=>rows.map(r=>r.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\n');
+function dl(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click()}
+function exportStu(){dl('choir_students_'+meta.cur+'.csv',csv([['Name','Class','Section','Adm No','Phone','Status','Leaving','Batch','Gender','Role','Present','Absent','Attendance %','Note'],...st.students.map(s=>{const x=stats(s);return[s.name,s.cls,s.sec,s.adm,s.phone,s.status,s.leaving,s.batch,s.gender,s.role,x.p,x.a,x.pct??'',s.note||'']})]),'text/csv')}
+function exportAtt(){const ds=Object.keys(st.att).filter(d=>!st.holidays[d]).sort();dl('choir_attendance_'+meta.cur+'.csv',csv([['Adm No','Name',...ds],...active().map(s=>[s.adm,s.name,...ds.map(d=>st.att[d][s.id]||'')])]),'text/csv')}
+function backup(){dl('choir_backup_'+meta.cur+'_'+iso(new Date())+'.json',JSON.stringify(st),'application/json')}
+function restore(f){if(!f)return;f.text().then(t=>{try{const o=JSON.parse(t);if(!o.students)throw 0;st=o;fix();save();render()}catch(e){alert('Not a valid backup file')}})}
+
+/* ---------- Import ---------- */
+function empty(){return`<div class="card" style="text-align:center;padding:40px 16px"><h2>No students yet</h2>
+<p class="mut" style="max-width:460px;margin:0 auto 16px">Import an Excel (.xlsx) or CSV file with columns like Student Name, Class, Section, Adm. No., Phone, Status, Batch, Gender, Role (leave Batch blank to auto-balance MWF/TTS; add a Photo URL column to include photos) — or add students one by one. After importing, use <b>Import photos</b> to add many pictures at once, named by Adm. No. (e.g. J09049.jpg).</p>
+<div class="row" style="justify-content:center"><button class="b pri" onclick="$('#file').click()">Import data</button><button class="b" onclick="template()">Download template</button><button class="b" onclick="tab='stu';render();edit()">Add manually</button></div>
+<div style="margin-top:22px;padding-top:18px;border-top:1px solid var(--line)"><p class="mut" style="margin:0 0 10px">Already using the tracker on another phone or computer?</p><button class="b pri" onclick="syncSetup()">☁ Connect Google sync</button> <span class="sub">to load your students and attendance here</span></div></div>`}
+const HEAD=['Student Name','Class','Section','Adm. No.','Phone','Status','Leaving Date','Batch','Gender','Role','Photo URL','Note'];
+function template(){dl('choir_template.csv',csv([HEAD,['Example Student','IV','A','J00000','9999999999','Active','','TTS','Female','Singer','','']]),'text/csv')}
+function parseCSV(t){const R=[];let r=[],c='',q=false;t=t.replace(/^﻿/,'');
+ for(let i=0;i<t.length;i++){const ch=t[i];
+  if(q){if(ch=='"'){if(t[i+1]=='"'){c+='"';i++}else q=false}else c+=ch}
+  else if(ch=='"')q=true;else if(ch==','){r.push(c);c=''}
+  else if(ch=='\n'||ch=='\r'){if(ch=='\r'&&t[i+1]=='\n')i++;r.push(c);c='';R.push(r);r=[]}
+  else c+=ch}
+ if(c||r.length){r.push(c);R.push(r)}return R}
+function toStudents(rows){
+ const h=(rows[0]||[]).map(x=>String(x??'').toLowerCase().replace(/[^a-z]/g,''));
+ const find=(...n)=>h.findIndex(x=>n.includes(x));
+ const ix={name:find('studentname','name'),cls:find('class'),sec:find('section','sec'),adm:find('admno','admissionno','admission','admnumber'),
+  phone:find('phone','phoneno','mobile','contact'),status:find('status'),leaving:find('leavingdate','leaving'),
+  batch:find('batch'),gender:find('gender','sex'),role:find('role'),photo:find('photourl','photo','image','picture'),note:find('note','notes','remark','remarks','reason')};
+ if(ix.name<0)throw new Error('Could not find a “Student Name” column in the first row.');
+ // original sheet leaves headers blank for columns J,K,L = batch, gender, role
+ if(ix.batch<0&&!h[9])ix.batch=9;if(ix.gender<0&&!h[10])ix.gender=10;if(ix.role<0&&!h[11])ix.role=11;
+ const g=(r,k)=>ix[k]>=0?String(r[ix[k]]??'').trim():'';
+ const out=[];let n=0;
+ for(const r of rows.slice(1)){const name=g(r,'name');if(!name)continue;
+  let lv=g(r,'leaving');if(lv==='1')lv='';
+  const ph=g(r,'photo');
+  out.push({id:'s'+Date.now()+'_'+(n++),photo:/^(https?:|data:image)/i.test(ph)?ph:'',name,cls:g(r,'cls'),sec:g(r,'sec'),adm:g(r,'adm'),phone:g(r,'phone'),status:g(r,'status')||'Active',leaving:lv,batch:g(r,'batch'),gender:g(r,'gender'),role:g(r,'role'),note:g(r,'note')})}
+ return out}
+async function importFile(f){if(!f)return;
+ try{let rows;
+  if(/\.csv$/i.test(f.name))rows=parseCSV(await f.text());
+  else{if(typeof XLSX==='undefined')throw new Error('Excel import needs internet once to load its reader. Save the sheet as CSV and import that instead.');
+   const wb=XLSX.read(await f.arrayBuffer(),{type:'array'});
+   const nm=wb.SheetNames.find(s=>/choir|student|detail/i.test(s))||wb.SheetNames[0];
+   rows=XLSX.utils.sheet_to_json(wb.Sheets[nm],{header:1,raw:false,defval:''})}
+  const list=toStudents(rows);if(!list.length)throw new Error('No student rows found.');
+  askImport(list)}catch(e){alert('Import failed: '+e.message)}}
+function askImport(list){
+ const d=$('#dlg');
+ $('#frm').innerHTML=`<h2>Import ${list.length} students</h2><p class="mut">${st.students.length?`You already have ${st.students.length} students. Merge updates matching students (by admission no.) and adds new ones; Replace removes everyone and all attendance.`:'They will be added to the tracker.'}</p>
+ <div class="row" style="margin-top:12px"><button class="b pri" value="merge">${st.students.length?'Merge':'Import'}</button>${st.students.length?'<button class="b" value="replace" style="color:var(--bad)">Replace all</button>':''}<button class="b" value="x" formnovalidate>Cancel</button></div>`;
+ d.onclose=()=>{const v=d.returnValue;d.returnValue='';
+  const fill=(s,pool)=>{if(!s.batch)s.batch=s.status!=='Active'?'Not Active':autoBatch(s.role,s.gender,pool)};
+  if(v==='replace'){const done=[];list.forEach(s=>{fill(s,done);done.push(s)});st={students:list,att:{},events:[],evAtt:{},holidays:{}}}
+  else if(v==='merge'){for(const s of list){const m=st.students.find(x=>s.adm&&x.adm===s.adm)||st.students.find(x=>!s.adm&&x.name.toLowerCase()===s.name.toLowerCase()&&x.cls===s.cls);
+    if(m){const id=m.id;const ph=s.photo||m.photo;const bt=s.batch||m.batch;Object.assign(m,s,{id,photo:ph,batch:bt})}else{fill(s,st.students);st.students.push(s)}}}
+  else return;
+  save();tab='dash';render()};
+ d.showModal()}
+/* ---------- Google sync (two-way, Apps Script web app) ---------- */
+function autoPush(){clearTimeout(_ap);_ap=setTimeout(()=>syncNow(true),4000)}
+async function gcall(action,extra){
+ if(!sync.url||!sync.key)throw new Error('Enter the Web app URL and the key first');
+ let r;try{r=await fetch(sync.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:sync.key,action,...extra})})}catch(e){throw new Error('Cannot reach Google — check your internet connection')}
+ let j;try{j=await r.json()}catch(e){throw new Error('Google did not send data back — check the Web app URL, and that access is set to “Anyone”')}
+ if(!j.ok&&!j.conflict)throw new Error(j.error||'Google returned an error');return j}
+const gRun=async f=>{try{await f()}catch(e){alert('Google sync: '+e.message)}};
+const cfgOk=()=>!!(sync.url&&sync.key);
+const ago=t=>{const s=Math.max(0,Math.round((Date.now()-t)/1000));return s<60?'just now':s<3600?Math.round(s/60)+' min ago':s<86400?Math.round(s/3600)+' h ago':new Date(t).toLocaleDateString()};
+const gLine=()=>{const t=(sync.t||{})[meta.cur],d=(sync.d||{})[meta.cur];return(t?'Session '+meta.cur+' last synced '+new Date(t).toLocaleString():'Session '+meta.cur+' not synced yet')+(d?' · changes not sent yet':'')};
+function refreshSyncUI(){const b=$('#syncb');if(!b)return;const t=(sync.t||{})[meta.cur],d=(sync.d||{})[meta.cur];let tx,col='',ti='';
+ if(!cfgOk()){tx='☁ Set up sync';ti='Connect to your Google sheet'}
+ else if(_busy){tx='⟳ Syncing…'}
+ else if(_err){tx='⚠ Sync problem';col='var(--bad)';ti=_err}
+ else if(d){tx='● Not sent yet';col='var(--warn)';ti='Changes will be sent to Google shortly. Click to sync now.'}
+ else if(t){tx='✓ Synced '+ago(t);col='var(--ok)';ti='Click to check Google for changes'}
+ else{tx='☁ Sync now'}
+ b.textContent=tx;b.style.color=col;b.title=ti||''}
+async function syncNow(silent){
+ if(!cfgOk()){if(!silent)syncSetup();return}
+ if(_busy)return;if(silent&&$('#dlg').open)return;
+ _busy=true;_err='';refreshSyncUI();
+ try{await syncCore(silent)}catch(e){_err=e.message;if(!silent)alert('Google sync: '+e.message)}
+ finally{_busy=false;_lastCheck=Date.now();refreshSyncUI();const g=$('#gst');if(g)g.textContent=gLine()}}
+async function syncCore(silent){
+ const name=meta.cur,L=await gcall('list'),r=(L.sessions||[]).find(x=>x.name===name);
+ const base=(sync.v||{})[name],dirty=!!(sync.d||{})[name],has=st.students.length>0;
+ if(!r){if(has){await doPush(name,0,true);if(!silent)toast('Sent '+name+' to Google')}else if(!silent)toast('Nothing to sync yet');return}
+ if(r.version===base){if(dirty){if(await doPush(name,base,false)&&!silent)toast('Sent changes to Google')}else if(!silent)toast('Already up to date ✓');return}
+ if(!has||(!dirty&&base)){await doPull(name,silent?'Updated from Google ('+name+')':'Updated from Google');return}
+ await askConflict(name,r)}
+async function doPush(name,base,force){const stamp=(sync.d||{})[name];
+ const j=await gcall('push',{session:name,data:st,base,force:!!force});
+ if(j.conflict){await askConflict(name,{version:j.version,updated:+j.version});return false}
+ sync.v=sync.v||{};sync.v[name]=j.version;sync.t=sync.t||{};sync.t[name]=Date.now();sync.d=sync.d||{};if(sync.d[name]===stamp)delete sync.d[name];saveSync();return true}
+async function doPull(name,msg){const j=await gcall('pull',{session:name});if(!j.data)return false;
+ const s=JSON.stringify(j.data);try{localStorage.setItem(skey(name),s)}catch(e){throw new Error('Not enough browser storage for this session')}
+ sync.v=sync.v||{};sync.v[name]=j.version;sync.t=sync.t||{};sync.t[name]=Date.now();sync.d=sync.d||{};delete sync.d[name];saveSync();
+ if(name===meta.cur){_ls[KEY]=s;st=j.data;fix();render()}
+ if(msg)toast(msg);return true}
+function mergeData(a,b){const o=JSON.parse(JSON.stringify(b));o.students=o.students||[];o.att=o.att||{};o.events=o.events||[];o.evAtt=o.evAtt||{};o.holidays=o.holidays||{};
+ const byId=Object.fromEntries(o.students.map(s=>[s.id,s])),byAdm={};o.students.forEach(s=>{if(s.adm)byAdm[s.adm]=s});const map={};
+ for(const s of a.students||[]){let m=byId[s.id]||(s.adm&&byAdm[s.adm]);if(m){map[s.id]=m.id;const ph=s.photo||m.photo;Object.assign(m,s,{id:m.id,photo:ph})}else{map[s.id]=s.id;o.students.push(JSON.parse(JSON.stringify(s)))}}
+ const mp=id=>map[id]||id;
+ for(const d in a.att||{}){o.att[d]=o.att[d]||{};for(const id in a.att[d])o.att[d][mp(id)]=a.att[d][id]}
+ Object.assign(o.holidays,a.holidays||{});
+ for(const e of a.events||[]){let m=o.events.find(x=>x.id===e.id);if(!m){m=JSON.parse(JSON.stringify(e));m.students=(m.students||[]).map(mp);o.events.push(m)}else{m.name=e.name;m.desc=e.desc;m.students=[...new Set([...(m.students||[]),...(e.students||[]).map(mp)])];m.dates=[...new Set([...(m.dates||[]),...(e.dates||[])])].sort();m.holidays=Object.assign(m.holidays||{},e.holidays||{})}}
+ for(const k in a.evAtt||{}){o.evAtt[k]=o.evAtt[k]||{};for(const d in a.evAtt[k]){o.evAtt[k][d]=o.evAtt[k][d]||{};for(const id in a.evAtt[k][d])o.evAtt[k][d][mp(id)]=a.evAtt[k][d][id]}}
+ return o}
+function askConflict(name,r){return new Promise(res=>{const d=$('#dlg');d.classList.remove('wide');$('#frm').oninput=null;$('#frm').onchange=null;
+ const when=new Date(+r.updated||+r.version).toLocaleString(),bt='display:block;width:100%;text-align:left;margin-top:10px;padding:12px 14px';
+ $('#frm').innerHTML=`<h2>Two different copies of ${esc(name)}</h2><p class="mut" style="margin:6px 0 0">Google has a copy saved ${esc(when)} that this device hasn’t seen yet, and this device has its own changes too. What should happen?</p>
+ <button class="b pri" value="merge" style="${bt}"><b>Combine both</b> (recommended)<div style="font-weight:400;font-size:14px;opacity:.9">Keeps every student and every mark from both copies. If you cleared a mark or deleted something on one device, it may come back.</div></button>
+ <button class="b" value="google" style="${bt}"><b>Use Google’s copy</b><div class="sub">Replace this device’s data. Changes made here since the last sync are lost.</div></button>
+ <button class="b" value="device" style="${bt}"><b>Use this device’s copy</b><div class="sub">Replace Google’s copy. Changes made on other devices are lost.</div></button>
+ <button class="b" value="later" formnovalidate style="${bt}">Decide later</button>`;
+ d.onclose=async()=>{const v=d.returnValue;d.returnValue='';
+  try{
+   if(v==='merge'){const j=await gcall('pull',{session:name});const m=j.data?mergeData(st,j.data):st;st=m;fix();const s=JSON.stringify(st);try{localStorage.setItem(KEY,s)}catch(e){}_ls[KEY]=s;
+    const p=await gcall('push',{session:name,data:st,base:j.version||0,force:true});sync.v=sync.v||{};sync.v[name]=p.version;sync.t=sync.t||{};sync.t[name]=Date.now();sync.d=sync.d||{};delete sync.d[name];saveSync();render();toast('Combined both copies and synced · '+st.students.length+' students')}
+   else if(v==='google'){await doPull(name,'Replaced with Google’s copy')}
+   else if(v==='device'){const j=await gcall('push',{session:name,data:st,base:0,force:true});sync.v=sync.v||{};sync.v[name]=j.version;sync.t=sync.t||{};sync.t[name]=Date.now();sync.d=sync.d||{};delete sync.d[name];saveSync();toast('Google now has this device’s copy')}
+   else{_err='Two copies need your decision — click Sync';}
+  }catch(e){_err=e.message;alert('Google sync: '+e.message)}
+  refreshSyncUI();res()};
+ d.showModal()})}
+function syncSetup(){const d=$('#dlg');d.classList.remove('wide');$('#frm').oninput=null;$('#frm').onchange=null;
+ $('#frm').innerHTML=syncCard().replace(/<button class="b/g,'<button type="button" class="b')+'<div class="row" style="margin-top:12px"><button class="b" value="x" formnovalidate>Close</button></div>';
+ d.onclose=()=>{d.returnValue='';refreshSyncUI();if(cfgOk()&&sync.auto)syncNow(true)};d.showModal()}
+function syncCard(){return`<div class="card"><h2>Google Sheet sync</h2><p class="sub" style="margin:0 0 8px">Keeps this session the same on every phone and computer. Changes are sent to your Google Drive (readable Students / Attendance sheets plus a full backup), and changes made on another device are picked up automatically. Paste the Web app URL and key from your Apps Script.</p>
+ <div class="row"><input placeholder="Web app URL (https://script.google.com/macros/s/…/exec)" value="${esc(sync.url||'')}" oninput="sync.url=this.value.trim();saveSync();refreshSyncUI()" style="flex:1 1 280px"><input type="password" placeholder="Secret key" value="${esc(sync.key||'')}" oninput="sync.key=this.value.trim();saveSync();refreshSyncUI()" style="flex:1 1 160px"></div>
+ <div class="row"><button class="b" onclick="gRun(gTest)">Test connection</button><button class="b pri" onclick="syncNow(false)">Sync now</button><button class="b" onclick="gRun(()=>gPush())">Send ${esc(meta.cur)} to Google</button><button class="b" onclick="gRun(gSessions)">Get from Google…</button></div>
+ <label class="sub" style="display:flex;gap:8px;align-items:center;margin:0"><input type="checkbox" ${sync.auto?'checked':''} onchange="sync.auto=this.checked;saveSync();if(this.checked)syncNow(true)" style="width:auto"> Keep in sync automatically (when the app opens, every minute, and a few seconds after each change)</label>
+ <div class="sub" id="gst" style="margin-top:6px">${esc(gLine())}</div></div>`}
+async function gTest(){const j=await gcall('ping');if(sync.auto===undefined){sync.auto=true;saveSync();alert((j.msg||'Connected')+'\n\nAutomatic two-way sync is now on.');render();syncNow(true)}else alert(j.msg||'Connected')}
+async function gPush(){const name=meta.cur;const stamp=(sync.d||{})[name];
+ if(!confirm('Replace the copy of session '+name+' in Google with the data on this device?\n\n(Use “Sync now” instead to combine safely with changes from other devices.)'))return;
+ const j=await gcall('push',{session:name,data:st,base:0,force:true});
+ sync.v=sync.v||{};sync.v[name]=j.version;sync.t=sync.t||{};sync.t[name]=Date.now();sync.d=sync.d||{};if(sync.d[name]===stamp)delete sync.d[name];saveSync();refreshSyncUI();
+ toast('Sent '+name+' to Google · '+j.students+' students');const e=$('#gst');if(e)e.textContent=gLine()}
+async function gSessions(){const j=await gcall('list'),d=$('#dlg');
+ $('#frm').oninput=null;$('#frm').onchange=null;d.classList.remove('wide');
+ $('#frm').innerHTML=`<h2>Sessions in Google</h2>${j.sessions.length?j.sessions.map(x=>`<div class="row" style="justify-content:space-between;margin:8px 0;flex-wrap:nowrap"><div><b>${esc(x.name)}</b><div class="sub">saved ${esc(new Date(+x.updated).toLocaleString())}${meta.list.includes(x.name)?' · also on this device':''}</div></div><button type="button" class="b pri" data-n="${esc(x.name)}" onclick="gGet(this.dataset.n)">Download</button></div>`).join(''):'<p class="mut">Nothing is saved in Google yet. Use “Sync now” first.</p>'}<div class="row" style="margin-top:12px"><button class="b" value="x" formnovalidate>Close</button></div>`;
+ d.onclose=()=>{d.returnValue=''};d.showModal()}
+async function gGet(name){try{
+ if(meta.list.includes(name)&&!confirm('Replace session '+name+' on this device with the copy from Google?'))return;
+ const j=await gcall('pull',{session:name});if(!j.data){alert('Nothing found in Google for '+name);return}
+ const k=skey(name),s=JSON.stringify(j.data);try{localStorage.setItem(k,s)}catch(e){alert('Not enough browser storage for this session.');return}
+ $('#dlg').close();_ls[k]=s;
+ if(!meta.list.includes(name))meta.list.push(name);
+ meta.cur=name;saveMeta();KEY=k;sync.v=sync.v||{};sync.v[name]=j.version;sync.t=sync.t||{};sync.t[name]=Date.now();sync.d=sync.d||{};delete sync.d[name];saveSync();
+ loadSess();refreshSyncUI();toast('Downloaded '+name+' from Google')}
+ catch(e){alert('Google sync: '+e.message)}}
+/* automatic triggers */
+setInterval(()=>{if(sync.auto&&cfgOk()&&!document.hidden&&Date.now()-_lastCheck>55000)syncNow(true)},30000);
+setInterval(refreshSyncUI,30000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&sync.auto&&cfgOk()&&Date.now()-_lastCheck>15000)syncNow(true)});
+window.addEventListener('online',()=>{if(sync.auto&&cfgOk())syncNow(true)});
+setTimeout(()=>{refreshSyncUI();if(sync.auto&&cfgOk())syncNow(true)},1200);
+/* ---------- Sessions / years ---------- */
+function sessUI(){const e=$('#sess');if(e)e.innerHTML=meta.list.map(n=>`<option ${n===meta.cur?'selected':''}>${esc(n)}</option>`).join('')+'<option value="__new">+ New session…</option>';document.title='MAS Choir Tracker '+meta.cur}
+function loadSess(){let o;try{o=JSON.parse(localStorage.getItem(KEY))}catch(e){}st=(o&&o.students)?o:{students:[],att:{}};fix();histId='';evId='';evDate='';date=iso(new Date());tab='dash';sessUI();render()}
+function sessPick(v){if(v==='__new'){sessUI();sessNew();return}if(v===meta.cur)return;save();meta.cur=v;saveMeta();KEY=skey(v);try{_ls[KEY]=localStorage.getItem(KEY)}catch(e){}loadSess();if(sync.auto&&sync.url&&sync.key)syncNow(true)}
+function nextSess(c){const m=String(c).match(/^(\d{4})\s*[-–]\s*(\d{2,4})$/);if(!m)return'';const a=+m[1]+1;return a+'-'+String((a+1)%100).padStart(2,'0')}
+function sessNew(){const d=$('#dlg'),chk='display:flex;align-items:center;gap:8px;color:var(--ink);font-size:17px';
+ $('#frm').oninput=null;$('#frm').onchange=null;d.classList.remove('wide');
+ $('#frm').innerHTML=`<h2>New session / year</h2><p class="mut" style="margin:4px 0 0">Each session keeps its own students, attendance, events and holidays. Switch between sessions from the top of the page.</p>
+ <label>Session name (e.g. 2027-28)<input name="sn" value="${esc(nextSess(meta.cur))}" placeholder="2027-28"></label>
+ <label style="${chk}"><input type="checkbox" name="cp" checked style="width:auto"> Copy active students from ${esc(meta.cur)} (attendance is not copied)</label>
+ <label style="${chk}"><input type="checkbox" name="up" style="width:auto"> Move copied students up one class (class ${ROM[ROM.length-1]} students are not copied)</label>
+ <label style="${chk}"><input type="checkbox" name="ph" checked style="width:auto"> Copy photos too</label>
+ <div class="row" style="margin-top:12px"><button class="b pri" value="ok">Create session</button><button class="b" value="x" formnovalidate>Cancel</button></div>`;
+ d.onclose=()=>{const v=d.returnValue;d.returnValue='';if(v!=='ok')return;const F=$('#frm'),n=F.elements.sn.value.trim();
+  if(!n){alert('Please enter a session name');return}
+  if(meta.list.includes(n)){alert('A session named '+n+' already exists — pick it from the list at the top.');return}
+  save();let list=[];
+  if(F.elements.cp.checked){list=JSON.parse(JSON.stringify(active()));
+   if(F.elements.up.checked)list=list.filter(s=>s.cls!==ROM[ROM.length-1]).map(s=>{const i=ROM.indexOf(s.cls);if(i>=0)s.cls=ROM[i+1];return s})}
+  const mk=ph=>({students:list.map(s=>ph?s:{...s,photo:''}),att:{},events:[],evAtt:{},holidays:{}});
+  let ns=mk(F.elements.ph.checked),msg='';
+  try{localStorage.setItem(skey(n),JSON.stringify(ns))}catch(e){
+   try{ns=mk(false);localStorage.setItem(skey(n),JSON.stringify(ns));msg=' · photos not copied (browser storage full)'}catch(e2){alert('Not enough browser storage to create a new session. Download a backup first, then try again without copying photos.');return}}
+  meta.list.push(n);meta.cur=n;saveMeta();KEY=skey(n);loadSess();toast('Session '+n+' created'+(list.length?' · '+list.length+' students copied':'')+msg)};
+ d.showModal()}
+sessUI();render();
+</script></body></html>
