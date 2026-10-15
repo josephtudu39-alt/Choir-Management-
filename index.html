@@ -169,9 +169,10 @@ function pctPill(x){if(x==null)return'<span class="mut">–</span>';return`<span
 function mobTables(){document.querySelectorAll('#main table').forEach(t=>{const ths=[...t.querySelectorAll('thead th')];if(ths.length<5)return;t.classList.add('rt');if(!ths.some(h=>h.hasAttribute('onclick')))t.classList.add('nohd');
  t.querySelectorAll('tbody tr').forEach(r=>[...r.children].forEach((c,i)=>{if(c.tagName==='TD'&&!c.dataset.l&&ths[i]){const l=ths[i].textContent.replace(/[▲▼]/g,'').trim();if(l)c.dataset.l=l}}))})}
 function render(){
+ const wasQ=document.activeElement&&document.activeElement.id==='q';
  $('#nav').innerHTML=tabs.map(([k,l])=>`<button class="${k===tab?'on':''}" onclick="tab='${k}';render()">${l}</button>`).join('');
  $('#main').innerHTML={dash,att,stu,ev,hist,chk}[tab]();mobTables();
- if(tab==='stu'||tab==='att'){const e=$('#q');if(e&&e.dataset.f){e.focus();e.setSelectionRange(e.value.length,e.value.length)}}
+ if(wasQ&&(tab==='stu'||tab==='att')){const e=$('#q');if(e){e.focus();e.setSelectionRange(e.value.length,e.value.length)}}
 }
 /* ---------- Dashboard ---------- */
 function dash(){
