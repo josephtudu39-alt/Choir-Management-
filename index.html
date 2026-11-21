@@ -81,6 +81,8 @@ nav{position:sticky;top:0;z-index:5;background:var(--bg);scrollbar-width:none}na
  .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
 }
 @media(max-width:380px){.top>button{flex:1 1 100%}}
+@media print{.herob,.top,nav,.noprint,dialog,#toast{display:none!important}body{background:#fff!important;color:#000;font-size:12px}main{padding:0!important}.card{box-shadow:none;border:0;padding:0}table{font-size:11px}th,td{padding:4px 6px}.pill{border:1px solid #999;background:#fff!important;color:#000!important}.printonly{display:block!important}.tw{overflow:visible!important}}
+.printonly{display:none}.grid-d td,.grid-d th{text-align:center;padding:6px 4px;min-width:34px}.grid-d td:first-child,.grid-d th:first-child{text-align:left;min-width:180px}
 </style>
 <script>(function(){var t={t:'royal',m:'auto'};try{t=Object.assign(t,JSON.parse(localStorage.getItem('mas_theme')))}catch(e){}window.__th=t;var mq=matchMedia('(prefers-color-scheme: dark)');window.applyTheme=function(){var h=document.documentElement,d=__th.m==='dark'||(__th.m==='auto'&&mq.matches);h.dataset.theme=__th.t;if(d)h.setAttribute('data-dark','');else h.removeAttribute('data-dark');var m=document.querySelector('meta[name=theme-color]');if(m)m.content=getComputedStyle(h).getPropertyValue('--h1').trim()||'#2b2f8f'};applyTheme();if(mq.addEventListener)mq.addEventListener('change',applyTheme)})();</script></head><body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="mlogo" viewBox="0 0 64 64"><defs><linearGradient id="lgd" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#f2a81d"/></linearGradient><linearGradient id="lbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--h1)"/><stop offset="1" style="stop-color:var(--h2)"/></linearGradient></defs><rect x="2" y="2" width="60" height="60" rx="17" fill="url(#lbg)" stroke="rgba(255,255,255,.75)" stroke-width="2.5"/><path d="M13 27c-3 3.4-3 7.6 0 11M51 27c3 3.4 3 7.6 0 11" fill="none" stroke="url(#lgd)" stroke-width="3" stroke-linecap="round"/><path d="M8 24c-4.6 5-4.6 11 0 16M56 24c4.6 5 4.6 11 0 16" fill="none" stroke="url(#lgd)" stroke-width="2.2" stroke-linecap="round" opacity=".7"/><path d="M26 45V22l19-5v23" fill="none" stroke="#fff" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"/><path d="M26 22l19-5v7l-19 5z" fill="#fff"/><ellipse cx="21.5" cy="45.5" rx="6.3" ry="4.8" transform="rotate(-18 21.5 45.5)" fill="#fff"/><ellipse cx="40.5" cy="40.5" rx="6.3" ry="4.8" transform="rotate(-18 40.5 40.5)" fill="#fff"/></symbol></svg>
@@ -126,7 +128,7 @@ const iso=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*6e4);return z.t
 const ROM=['I','II','III','IV','V','VI','VII','VIII'];
 const clsKey=c=>{const i=ROM.indexOf(c);return i<0?99:i};
 let evId='',evDate='',histId='',tab='dash',date=iso(new Date()),q='',fStatus='Active',fClass='',fBatch='',showAll=false,sortK='name',sortD=1,sq='';
-const tabs=[['dash','Dashboard'],['att','Attendance'],['ev','Events'],['stu','Students'],['hist','History'],['chk','Data checks']];
+const tabs=[['dash','Dashboard'],['att','Attendance'],['ev','Events'],['stu','Students'],['hist','History'],['rep','Reports'],['chk','Data checks']];
 const active=()=>st.students.filter(s=>s.status==='Active');
 const dow=d=>new Date(d+'T00:00:00').getDay();
 const batchOf=d=>[1,3,5].includes(dow(d))?'MWF':[2,4,6].includes(dow(d))?'TTS':'';
@@ -176,12 +178,12 @@ async function importPhotos(files){if(!st.students.length){alert('Import or add 
  alert(ok+' photo(s) matched and imported.'+(miss.length?'\n\nNo match for: '+miss.slice(0,15).join(', ')+(miss.length>15?'…':'')+'\n(Name each file with the Adm. No. or the exact student name, e.g. J09049.jpg)':''))}
 function pctPill(x){if(x==null)return'<span class="mut">–</span>';return`<span class="pill ${x>=75?'ok':x>=50?'warn':'bad'}">${x}%</span>`}
 
-function mobTables(){document.querySelectorAll('#main table').forEach(t=>{const ths=[...t.querySelectorAll('thead th')];if(ths.length<5)return;t.classList.add('rt');if(!ths.some(h=>h.hasAttribute('onclick')))t.classList.add('nohd');
+function mobTables(){document.querySelectorAll('#main table').forEach(t=>{const ths=[...t.querySelectorAll('thead th')];if(ths.length<5||t.classList.contains('norc'))return;t.classList.add('rt');if(!ths.some(h=>h.hasAttribute('onclick')))t.classList.add('nohd');
  t.querySelectorAll('tbody tr').forEach(r=>[...r.children].forEach((c,i)=>{if(c.tagName==='TD'&&!c.dataset.l&&ths[i]){const l=ths[i].textContent.replace(/[▲▼]/g,'').trim();if(l)c.dataset.l=l}}))})}
 function render(){
  const wasQ=document.activeElement&&document.activeElement.id==='q';
  $('#nav').innerHTML=tabs.map(([k,l])=>`<button class="${k===tab?'on':''}" onclick="tab='${k}';render()">${l}</button>`).join('');
- $('#main').innerHTML={dash,att,stu,ev,hist,chk}[tab]();mobTables();
+ $('#main').innerHTML={dash,att,stu,ev,hist,rep,chk}[tab]();mobTables();
  if(wasQ&&(tab==='stu'||tab==='att')){const e=$('#q');if(e){e.focus();e.setSelectionRange(e.value.length,e.value.length)}}
 }
 /* ---------- Dashboard ---------- */
@@ -522,6 +524,54 @@ async function scanId(file){if(!file)return;
    setTimeout(()=>{edit(null,{...p,photo,raw:text,card,boxes});if(miss.length)toast('Not found: '+miss.join(', ')+' — mark that area on the card, or type it in.')},60)}
   catch(e){S.textContent='Could not read the card: '+(e.message||e)+'. Check your internet connection, or add the student manually.';go.disabled=false}};
  const dlg=$('#dlg');dlg.onclose=()=>{};dlg.showModal()}
+
+/* ---------- Attendance report for a period ---------- */
+let REP=null;
+function repInit(){if(REP)return;const n=new Date();REP={from:iso(new Date(n.getFullYear(),n.getMonth(),1)),to:iso(n),src:'prac',cls:'',batch:'',status:'Active',grid:false,sort:'cls'}}
+function repData(){
+ const R=REP,inR=d=>d>=R.from&&d<=R.to;let sources=[];
+ if(R.src==='all'){sources=[{att:st.att,hol:st.holidays,key:'prac'},...st.events.map(e=>({att:st.evAtt[e.id]||{},hol:e.holidays||{},key:e.id,ev:e}))]}
+ else if(R.src==='prac')sources=[{att:st.att,hol:st.holidays,key:'prac'}];
+ else{const e=st.events.find(x=>x.id===R.src);if(e)sources=[{att:st.evAtt[e.id]||{},hol:e.holidays||{},key:e.id,ev:e}]}
+ let stu;if(R.src==='all'||R.src==='prac')stu=st.students.filter(s=>R.status==='all'||s.status==='Active');
+ else{const e=sources[0]&&sources[0].ev;stu=e?evParts(e):[]}
+ stu=stu.filter(s=>(!R.cls||s.cls===R.cls)&&(!R.batch||s.batch===R.batch));
+ const dates=[];sources.forEach(sc=>Object.keys(sc.att).filter(d=>inR(d)&&!sc.hol[d]&&Object.keys(sc.att[d]).length).forEach(d=>dates.push({d,k:sc.key})));
+ const rows=stu.map(s=>{let p=0,a=0;const cells={};dates.forEach(({d,k})=>{const sc=sources.find(x=>x.key===k),v=(sc.att[d]||{})[s.id];if(v==='P')p++;else if(v==='A')a++;if(v)cells[d+'|'+k]=v});return{s,p,a,t:p+a,pct:p+a?Math.round(100*p/(p+a)):null,cells}});
+ const o={cls:(x,y)=>clsKey(x.s.cls)-clsKey(y.s.cls)||x.s.name.localeCompare(y.s.name),low:(x,y)=>(x.pct??101)-(y.pct??101)||x.s.name.localeCompare(y.s.name),high:(x,y)=>(y.pct??-1)-(x.pct??-1)||x.s.name.localeCompare(y.s.name)}[R.sort];
+ rows.sort(o);return{rows,dates:dates.sort((x,y)=>x.d.localeCompare(y.d)||x.k.localeCompare(y.k)),sources}}
+function repLabel(){const R=REP;const s=R.src==='prac'?'Regular practice':R.src==='all'?'Practice + all events':(st.events.find(e=>e.id===R.src)||{name:'Event'}).name;return s+' · '+fmtD(R.from).replace(/^\w+, /,'')+' to '+fmtD(R.to).replace(/^\w+, /,'')}
+function rep(){
+ if(!st.students.length)return empty();repInit();const R=REP,D=repData();
+ const T=D.rows.reduce((a,r)=>({p:a.p+r.p,a:a.a+r.a}),{p:0,a:0}),withData=D.rows.filter(r=>r.t),avg=withData.length?Math.round(withData.reduce((x,r)=>x+r.pct,0)/withData.length):null,overall=T.p+T.a?Math.round(100*T.p/(T.p+T.a)):null,low=withData.filter(r=>r.pct<75).length;
+ const dayN=new Set(D.dates.map(x=>x.d)).size;
+ const cl=[...new Set(st.students.map(s=>s.cls).filter(Boolean))].sort((a,b)=>clsKey(a)-clsKey(b)),bt=[...new Set(st.students.map(s=>s.batch).filter(Boolean))];
+ const opt=(arr,v)=>arr.map(o=>`<option ${o===v?'selected':''}>${esc(o)}</option>`).join('');
+ const showGrid=R.grid&&R.src!=='all';
+ const sd=(x,k)=>k;const fd=d=>d.slice(8)+'/'+d.slice(5,7);
+ return`<div class="card noprint"><h2>Attendance report</h2>
+ <div class="row"><label class="sub">From <input type="date" value="${R.from}" onchange="REP.from=this.value;render()"></label><label class="sub">To <input type="date" value="${R.to}" onchange="REP.to=this.value;render()"></label>
+ <button class="b" onclick="repPreset('month')">This month</button><button class="b" onclick="repPreset('last')">Last month</button><button class="b" onclick="repPreset(7)">Last 7 days</button><button class="b" onclick="repPreset(30)">Last 30 days</button><button class="b" onclick="repPreset('all')">All dates</button></div>
+ <div class="row"><select onchange="REP.src=this.value;render()"><option value="prac" ${R.src==='prac'?'selected':''}>Regular practice</option>${st.events.map(e=>`<option value="${e.id}" ${R.src===e.id?'selected':''}>Event: ${esc(e.name)}</option>`).join('')}<option value="all" ${R.src==='all'?'selected':''}>Practice + all events</option></select>
+ <select onchange="REP.cls=this.value;render()"><option value="">All classes</option>${opt(cl,R.cls)}</select><select onchange="REP.batch=this.value;render()"><option value="">All batches</option>${opt(bt,R.batch)}</select>
+ <select onchange="REP.status=this.value;render()"><option value="Active" ${R.status==='Active'?'selected':''}>Active students</option><option value="all" ${R.status==='all'?'selected':''}>All students (incl. left)</option></select>
+ <select onchange="REP.sort=this.value;render()"><option value="cls" ${R.sort==='cls'?'selected':''}>Sort: class, name</option><option value="low" ${R.sort==='low'?'selected':''}>Sort: lowest % first</option><option value="high" ${R.sort==='high'?'selected':''}>Sort: highest % first</option></select>
+ <label class="sub" style="display:flex;gap:6px;align-items:center"><input type="checkbox" style="width:auto" ${showGrid?'checked':''} ${R.src==='all'?'disabled':''} onchange="REP.grid=this.checked;render()"> day-by-day grid</label>
+ <span style="flex:1"></span><button class="b pri" onclick="window.print()">Print / Save PDF</button><button class="b" onclick="repCsv()">Export CSV</button></div></div>
+ <div class="printonly" style="margin-bottom:10px"><h2 style="margin:0">MAS Choir · Attendance report</h2><div>${esc(repLabel())}${R.cls?' · Class '+esc(R.cls):''}${R.batch?' · '+esc(R.batch):''}</div></div>
+ <div class="grid" style="margin-bottom:16px"><div class="kpi"><b>${dayN}</b><span>Days with attendance</span></div><div class="kpi"><b>${D.rows.length}</b><span>Students</span></div><div class="kpi"><b>${avg==null?'–':avg+'%'}</b><span>Average attendance</span></div><div class="kpi"><b>${overall==null?'–':overall+'%'}</b><span>Overall present rate</span></div><div class="kpi"><b>${low}</b><span>Below 75%</span></div></div>
+ ${R.from>R.to?'<div class="card mut">The “From” date is after the “To” date.</div>':!D.dates.length?'<div class="card mut">No attendance was marked in this period for the chosen source. Holidays are skipped. Try a wider date range.</div>':`<div class="card"><div class="sub noprint" style="margin-bottom:8px">${esc(repLabel())} · holidays are skipped · % = present ÷ (present + absent) for the sessions marked for that student</div>
+ <div class="tw"><table class="norc ${showGrid?'grid-d':''}"><thead><tr><th>#</th><th style="text-align:left">Student</th><th>Class</th><th>Batch</th><th>Present</th><th>Absent</th><th>Marked</th><th>%</th>${showGrid?D.dates.map(x=>`<th title="${esc(x.k==='prac'?'Practice':'')}">${fd(x.d)}</th>`).join(''):''}</tr></thead><tbody>
+ ${D.rows.map((r,i)=>`<tr><td>${i+1}</td><td style="text-align:left"><div class="nm" style="cursor:pointer" onclick="openHist('${r.s.id}')">${av(r.s,'sm')}<div>${esc(r.s.name)}<div class="sub">${esc(r.s.adm)}${r.s.status!=='Active'?' · '+esc(r.s.status):''}</div></div></div></td><td>${esc(r.s.cls)}-${esc(r.s.sec)}</td><td>${esc(r.s.batch)}</td><td>${r.p}</td><td>${r.a}</td><td>${r.t}</td><td>${pctPill(r.pct)}</td>${showGrid?D.dates.map(x=>{const v=r.cells[x.d+'|'+x.k];return`<td style="color:${v==='P'?'var(--ok)':v==='A'?'var(--bad)':'var(--mut)'}">${v==='P'?'✓':v==='A'?'✗':'·'}</td>`}).join(''):''}</tr>`).join('')}
+ </tbody></table></div></div>`}`}
+function repPreset(k){const n=new Date(),y=n.getFullYear(),m=n.getMonth();
+ if(k==='month'){REP.from=iso(new Date(y,m,1));REP.to=iso(n)}
+ else if(k==='last'){REP.from=iso(new Date(y,m-1,1));REP.to=iso(new Date(y,m,0))}
+ else if(k==='all'){const ds=[...Object.keys(st.att),...Object.values(st.evAtt).flatMap(a=>Object.keys(a))].sort();REP.from=ds[0]||iso(n);REP.to=ds.length?ds[ds.length-1]:iso(n)}
+ else{const f=new Date(n);f.setDate(f.getDate()-(k-1));REP.from=iso(f);REP.to=iso(n)}
+ render()}
+function repCsv(){const D=repData(),g=REP.grid&&REP.src!=='all';
+ dl('attendance_report_'+REP.from+'_to_'+REP.to+'.csv',csv([['Report',repLabel()],[],['Adm No','Name','Class','Section','Batch','Status','Present','Absent','Marked','%',...(g?D.dates.map(x=>x.d):[])],...D.rows.map(r=>[r.s.adm,r.s.name,r.s.cls,r.s.sec,r.s.batch,r.s.status,r.p,r.a,r.t,r.pct??'',...(g?D.dates.map(x=>{const v=r.cells[x.d+'|'+x.k];return v==='P'?'Present':v==='A'?'Absent':''}):[])])]),'text/csv')}
 /* ---------- Export ---------- */
 const csv=rows=>rows.map(r=>r.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\n');
 function dl(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click()}
